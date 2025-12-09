@@ -43,3 +43,7 @@ wasm-bindgen-test = "0.3.42"
 opt-level = "s"
 lto = true
 
+[package.metadata.wasm-pack.profile.release]
+# 禁用 wasm-opt（解决旧版本兼容问题）
+wasm-opt = false
+

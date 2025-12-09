@@ -423,8 +423,10 @@ fn calculate_rate(pool: &StatPool, skill: &SkillData) -> f64 {
     let speed_more = pool.get_more_multiplier(speed_key);
     
     // 武器基础攻速（如果是攻击）
+    // 默认武器攻速为 1.0，只有明确设置时才使用设置值
     let weapon_speed = if skill.is_attack {
-        pool.get_base("weapon.base_speed")
+        let base_speed = pool.get_base("weapon.base_speed");
+        if base_speed > 0.0 { base_speed } else { 1.0 }
     } else {
         1.0
     };

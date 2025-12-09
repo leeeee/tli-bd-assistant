@@ -1,0 +1,45 @@
+[package]
+name = "tli-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["TLI Team"]
+description = "火炬之光：无限 BD 决策辅助系统 - 计算引擎核心"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+# WASM 绑定
+wasm-bindgen = "0.2.92"
+
+# TypeScript 类型导出
+ts-rs = { version = "7.1", features = ["serde-compat"] }
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# BitSet 用于标签集合运算
+fixedbitset = "0.5"
+
+# 更好的错误处理
+thiserror = "1.0"
+
+# 控制台错误 hook（用于调试）
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+# 高精度浮点数（可选）
+# rust_decimal = "1.33"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.42"
+
+[profile.release]
+# 优化 WASM 大小
+opt-level = "s"
+lto = true
+

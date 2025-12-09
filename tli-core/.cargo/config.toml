@@ -1,0 +1,14 @@
+# Cargo 配置文件
+
+[build]
+# 默认目标为 WASM
+# target = "wasm32-unknown-unknown"
+
+[target.wasm32-unknown-unknown]
+# WASM 特定链接器设置
+rustflags = ["-C", "link-arg=-s"]
+
+[alias]
+# 便捷构建命令
+wasm = "build --target wasm32-unknown-unknown --release"
+

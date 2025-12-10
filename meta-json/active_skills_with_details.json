@@ -1,0 +1,1685 @@
+[
+    {
+        "name": "超载雷球",
+        "url": "https://tlidb.com/cn/Thunderbolt_Overload",
+        "tags": [
+          "法术",
+          "范围",
+          "闪电",
+          "投射物",
+          "抛射",
+          "物理"
+        ],
+        "main_attribute": "敏捷, 智慧",
+        "invsible_tag": "迸发",
+        "mana_cost": "8",
+        "base_time": "0.65",
+        "level_tables": [
+          {
+            "table_type": "type2",
+            "header": [
+              "level",
+              "effectiveness",
+              "damage",
+              "Descript"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 2-3 法术物理伤害",
+                "description": "超载雷球： 造成 2-3 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "2",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 2-3 法术物理伤害",
+                "description": "超载雷球： 造成 2-3 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "3",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 2-4 法术物理伤害",
+                "description": "超载雷球： 造成 2-4 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "4",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 3-6 法术物理伤害",
+                "description": "超载雷球： 造成 3-6 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "5",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 4-7 法术物理伤害",
+                "description": "超载雷球： 造成 4-7 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "6",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 5-9 法术物理伤害",
+                "description": "超载雷球： 造成 5-9 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "7",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 6-10 法术物理伤害",
+                "description": "超载雷球： 造成 6-10 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "8",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 8-13 法术物理伤害",
+                "description": "超载雷球： 造成 8-13 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "9",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 10-17 法术物理伤害",
+                "description": "超载雷球： 造成 10-17 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "10",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 12-20 法术物理伤害",
+                "description": "超载雷球： 造成 12-20 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "11",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 15-26 法术物理伤害",
+                "description": "超载雷球： 造成 15-26 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "12",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 18-30 法术物理伤害",
+                "description": "超载雷球： 造成 18-30 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "13",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 22-37 法术物理伤害",
+                "description": "超载雷球： 造成 22-37 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "14",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 26-43 法术物理伤害",
+                "description": "超载雷球： 造成 26-43 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "15",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 31-51 法术物理伤害",
+                "description": "超载雷球： 造成 31-51 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "16",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 43-72 法术物理伤害",
+                "description": "超载雷球： 造成 43-72 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "17",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 51-84 法术物理伤害",
+                "description": "超载雷球： 造成 51-84 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "18",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 70-116 法术物理伤害",
+                "description": "超载雷球： 造成 70-116 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "19",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 104-174 法术物理伤害",
+                "description": "超载雷球： 造成 104-174 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "20",
+                "damage_effectiveness": "31%",
+                "damage_text": "造成 124-207 法术物理伤害",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "21",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "22",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "23",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "24",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "25",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "26",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "27",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "28",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "29",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "30",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "31",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "32",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "33",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "34",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "35",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "36",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "37",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "38",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "39",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              },
+              {
+                "level": "40",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "超载雷球： 造成 124-207 法术物理伤害 该技能 100 % 物理伤害转化为闪电伤害 该技能的分裂数量最大为 5 该技能的分裂数量超过 5 后，每超过 1 次，额外 +20 % 伤害（该效果不计算辅助技能提供的分裂数量）"
+              }
+            ]
+          }
+        ]
+    },
+    {
+        "name": "爆炎术",
+        "url": "https://tlidb.com/cn/Fire_Burst",
+        "tags": [
+          "法术",
+          "范围",
+          "火焰"
+        ],
+        "main_attribute": "力量, 智慧",
+        "invsible_tag": "迸发",
+        "mana_cost": "8",
+        "base_time": "0.8",
+        "level_tables": [
+          {
+            "table_type": "type2",
+            "header": [
+              "level",
+              "effectiveness",
+              "damage",
+              "Descript"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "damage_effectiveness": "148%",
+                "damage_text": "造成 8-14 法术火焰伤害",
+                "description": "爆炎术： 造成 8-14 法术火焰伤害"
+              },
+              {
+                "level": "2",
+                "damage_effectiveness": "149%",
+                "damage_text": "造成 9-16 法术火焰伤害",
+                "description": "爆炎术： 造成 9-16 法术火焰伤害"
+              },
+              {
+                "level": "3",
+                "damage_effectiveness": "150%",
+                "damage_text": "造成 11-21 法术火焰伤害",
+                "description": "爆炎术： 造成 11-21 法术火焰伤害"
+              },
+              {
+                "level": "4",
+                "damage_effectiveness": "150%",
+                "damage_text": "造成 16-29 法术火焰伤害",
+                "description": "爆炎术： 造成 16-29 法术火焰伤害"
+              },
+              {
+                "level": "5",
+                "damage_effectiveness": "151%",
+                "damage_text": "造成 20-37 法术火焰伤害",
+                "description": "爆炎术： 造成 20-37 法术火焰伤害"
+              },
+              {
+                "level": "6",
+                "damage_effectiveness": "152%",
+                "damage_text": "造成 25-46 法术火焰伤害",
+                "description": "爆炎术： 造成 25-46 法术火焰伤害"
+              },
+              {
+                "level": "7",
+                "damage_effectiveness": "152%",
+                "damage_text": "造成 28-53 法术火焰伤害",
+                "description": "爆炎术： 造成 28-53 法术火焰伤害"
+              },
+              {
+                "level": "8",
+                "damage_effectiveness": "153%",
+                "damage_text": "造成 36-66 法术火焰伤害",
+                "description": "爆炎术： 造成 36-66 法术火焰伤害"
+              },
+              {
+                "level": "9",
+                "damage_effectiveness": "153%",
+                "damage_text": "造成 46-86 法术火焰伤害",
+                "description": "爆炎术： 造成 46-86 法术火焰伤害"
+              },
+              {
+                "level": "10",
+                "damage_effectiveness": "154%",
+                "damage_text": "造成 56-105 法术火焰伤害",
+                "description": "爆炎术： 造成 56-105 法术火焰伤害"
+              },
+              {
+                "level": "11",
+                "damage_effectiveness": "155%",
+                "damage_text": "造成 73-135 法术火焰伤害",
+                "description": "爆炎术： 造成 73-135 法术火焰伤害"
+              },
+              {
+                "level": "12",
+                "damage_effectiveness": "155%",
+                "damage_text": "造成 86-159 法术火焰伤害",
+                "description": "爆炎术： 造成 86-159 法术火焰伤害"
+              },
+              {
+                "level": "13",
+                "damage_effectiveness": "156%",
+                "damage_text": "造成 104-194 法术火焰伤害",
+                "description": "爆炎术： 造成 104-194 法术火焰伤害"
+              },
+              {
+                "level": "14",
+                "damage_effectiveness": "157%",
+                "damage_text": "造成 123-229 法术火焰伤害",
+                "description": "爆炎术： 造成 123-229 法术火焰伤害"
+              },
+              {
+                "level": "15",
+                "damage_effectiveness": "157%",
+                "damage_text": "造成 146-272 法术火焰伤害",
+                "description": "爆炎术： 造成 146-272 法术火焰伤害"
+              },
+              {
+                "level": "16",
+                "damage_effectiveness": "158%",
+                "damage_text": "造成 207-384 法术火焰伤害",
+                "description": "爆炎术： 造成 207-384 法术火焰伤害"
+              },
+              {
+                "level": "17",
+                "damage_effectiveness": "159%",
+                "damage_text": "造成 245-454 法术火焰伤害",
+                "description": "爆炎术： 造成 245-454 法术火焰伤害"
+              },
+              {
+                "level": "18",
+                "damage_effectiveness": "159%",
+                "damage_text": "造成 338-628 法术火焰伤害",
+                "description": "爆炎术： 造成 338-628 法术火焰伤害"
+              },
+              {
+                "level": "19",
+                "damage_effectiveness": "160%",
+                "damage_text": "造成 507-942 法术火焰伤害",
+                "description": "爆炎术： 造成 507-942 法术火焰伤害"
+              },
+              {
+                "level": "20",
+                "damage_effectiveness": "161%",
+                "damage_text": "造成 607-1128 法术火焰伤害",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "21",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "22",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "23",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "24",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "25",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "26",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "27",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "28",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "29",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "30",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "31",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "32",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "33",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "34",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "35",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "36",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "37",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "38",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "39",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              },
+              {
+                "level": "40",
+                "damage_effectiveness": "",
+                "damage_text": "",
+                "description": "爆炎术： 造成 607-1128 法术火焰伤害"
+              }
+            ]
+          }
+        ]
+      },
+    {
+        "name": "恶意枷锁",
+        "url": "https://tlidb.com/cn/Shackles_of_Malice",
+        "tags": [
+          "法术",
+          "腐蚀",
+          "连锁",
+          "范围"
+        ],
+        "main_attribute": "敏捷, 智慧",
+        "invsible_tag": "迸发",
+        "mana_cost": "8",
+        "base_time": "1.0",
+        "level_tables": [
+          {
+            "table_type": "type3",
+            "header": [
+              "level",
+              "effectiveness",
+              "damage",
+              "effectiveness",
+              "damage",
+              "Descript"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 9-9 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 9-9 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 9-9 法术腐蚀伤害。 爆炸： 造成 9-9 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "2",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 10-10 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 10-10 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 10-10 法术腐蚀伤害。 爆炸： 造成 10-10 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "3",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 13-13 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 13-13 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 13-13 法术腐蚀伤害。 爆炸： 造成 13-13 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "4",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 18-18 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 18-18 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 18-18 法术腐蚀伤害。 爆炸： 造成 18-18 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "5",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 24-24 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 24-24 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 24-24 法术腐蚀伤害。 爆炸： 造成 24-24 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "6",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 29-29 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 29-29 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 29-29 法术腐蚀伤害。 爆炸： 造成 29-29 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "7",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 33-33 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 33-33 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 33-33 法术腐蚀伤害。 爆炸： 造成 33-33 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "8",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 41-41 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 41-41 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 41-41 法术腐蚀伤害。 爆炸： 造成 41-41 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "9",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 53-53 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 53-53 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 53-53 法术腐蚀伤害。 爆炸： 造成 53-53 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "10",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 65-65 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 65-65 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 65-65 法术腐蚀伤害。 爆炸： 造成 65-65 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "11",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 83-83 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 83-83 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 83-83 法术腐蚀伤害。 爆炸： 造成 83-83 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "12",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 98-98 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 98-98 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 98-98 法术腐蚀伤害。 爆炸： 造成 98-98 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "13",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 118-118 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 118-118 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 118-118 法术腐蚀伤害。 爆炸： 造成 118-118 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "14",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 139-139 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 139-139 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 139-139 法术腐蚀伤害。 爆炸： 造成 139-139 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "15",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 164-164 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 164-164 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 164-164 法术腐蚀伤害。 爆炸： 造成 164-164 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "16",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 231-231 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 231-231 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 231-231 法术腐蚀伤害。 爆炸： 造成 231-231 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "17",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 272-272 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 272-272 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 272-272 法术腐蚀伤害。 爆炸： 造成 272-272 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "18",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 375-375 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 375-375 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 375-375 法术腐蚀伤害。 爆炸： 造成 375-375 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "19",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 559-559 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 559-559 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 559-559 法术腐蚀伤害。 爆炸： 造成 559-559 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "20",
+                "damage_effectiveness_1": "124%",
+                "damage_text_1": "造成 667-667 法术腐蚀伤害",
+                "damage_effectiveness_2": "124%",
+                "damage_text_2": "造成 667-667 法术腐蚀伤害",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "21",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "22",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "23",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "24",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "25",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "26",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "27",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "28",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "29",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "30",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "31",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "32",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "33",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "34",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "35",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "36",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "37",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "38",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "39",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              },
+              {
+                "level": "40",
+                "damage_effectiveness_1": "",
+                "damage_text_1": "",
+                "damage_effectiveness_2": "",
+                "damage_text_2": "",
+                "description": "恶意锁链： 造成 667-667 法术腐蚀伤害。 爆炸： 造成 667-667 法术腐蚀伤害 爆炸会移除锁链击中敌人的所有诅咒效果。 锁链击中的敌人每受到 1 个诅咒效果影响，爆炸额外 25% 伤害（叠乘）。"
+              }
+            ]
+          }
+        ]
+    },
+    {
+    "name": "闪电链",
+    "url": "https://tlidb.com/cn/Chain_Lightning",
+    "tags": [
+      "法术",
+      "闪电",
+      "连锁"
+    ],
+    "main_attribute": "敏捷, 智慧",
+    "invsible_tag": "迸发",
+    "mana_cost": "8",
+    "base_time": "0.65",
+    "level_tables": [
+      {
+        "table_type": "type2",
+        "header": [
+          "level",
+          "effectiveness",
+          "damage",
+          "Descript"
+        ],
+        "rows": [
+          {
+            "level": "1",
+            "damage_effectiveness": "163%",
+            "damage_text": "造成 1-23 法术闪电伤害",
+            "description": "闪电链： 造成 1-23 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "2",
+            "damage_effectiveness": "164%",
+            "damage_text": "造成 1-26 法术闪电伤害",
+            "description": "闪电链： 造成 1-26 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "3",
+            "damage_effectiveness": "164%",
+            "damage_text": "造成 2-34 法术闪电伤害",
+            "description": "闪电链： 造成 2-34 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "4",
+            "damage_effectiveness": "165%",
+            "damage_text": "造成 2-47 法术闪电伤害",
+            "description": "闪电链： 造成 2-47 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "5",
+            "damage_effectiveness": "166%",
+            "damage_text": "造成 3-60 法术闪电伤害",
+            "description": "闪电链： 造成 3-60 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "6",
+            "damage_effectiveness": "166%",
+            "damage_text": "造成 4-74 法术闪电伤害",
+            "description": "闪电链： 造成 4-74 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "7",
+            "damage_effectiveness": "167%",
+            "damage_text": "造成 4-84 法术闪电伤害",
+            "description": "闪电链： 造成 4-84 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "8",
+            "damage_effectiveness": "168%",
+            "damage_text": "造成 6-106 法术闪电伤害",
+            "description": "闪电链： 造成 6-106 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "9",
+            "damage_effectiveness": "169%",
+            "damage_text": "造成 7-138 法术闪电伤害",
+            "description": "闪电链： 造成 7-138 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "10",
+            "damage_effectiveness": "169%",
+            "damage_text": "造成 9-168 法术闪电伤害",
+            "description": "闪电链： 造成 9-168 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "11",
+            "damage_effectiveness": "170%",
+            "damage_text": "造成 11-217 法术闪电伤害",
+            "description": "闪电链： 造成 11-217 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "12",
+            "damage_effectiveness": "171%",
+            "damage_text": "造成 13-256 法术闪电伤害",
+            "description": "闪电链： 造成 13-256 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "13",
+            "damage_effectiveness": "172%",
+            "damage_text": "造成 16-311 法术闪电伤害",
+            "description": "闪电链： 造成 16-311 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "14",
+            "damage_effectiveness": "172%",
+            "damage_text": "造成 19-367 法术闪电伤害",
+            "description": "闪电链： 造成 19-367 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "15",
+            "damage_effectiveness": "173%",
+            "damage_text": "造成 23-437 法术闪电伤害",
+            "description": "闪电链： 造成 23-437 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "16",
+            "damage_effectiveness": "174%",
+            "damage_text": "造成 32-617 法术闪电伤害",
+            "description": "闪电链： 造成 32-617 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "17",
+            "damage_effectiveness": "174%",
+            "damage_text": "造成 38-729 法术闪电伤害",
+            "description": "闪电链： 造成 38-729 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "18",
+            "damage_effectiveness": "175%",
+            "damage_text": "造成 53-1009 法术闪电伤害",
+            "description": "闪电链： 造成 53-1009 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "19",
+            "damage_effectiveness": "176%",
+            "damage_text": "造成 80-1512 法术闪电伤害",
+            "description": "闪电链： 造成 80-1512 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "20",
+            "damage_effectiveness": "177%",
+            "damage_text": "造成 95-1811 法术闪电伤害",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "21",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "22",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "23",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "24",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "25",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "26",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "27",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "28",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "29",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "30",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "31",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "32",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "33",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "34",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "35",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "36",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "37",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "38",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "39",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          },
+          {
+            "level": "40",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "闪电链： 造成 95-1811 法术闪电伤害 该技能 +2 弹射 次数"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "冰锥术",
+    "url": "https://tlidb.com/cn/Ice_Lances",
+    "tags": [
+      "法术",
+      "投射物",
+      "冰冷",
+      "直射"
+    ],
+    "main_attribute": "智慧",
+    "invsible_tag": "迸发",
+    "mana_cost": "8",
+    "base_time": "0.65",
+    "level_tables": [
+      {
+        "table_type": "type2",
+        "header": [
+          "level",
+          "effectiveness",
+          "damage",
+          "Descript"
+        ],
+        "rows": [
+          {
+            "level": "1",
+            "damage_effectiveness": "136%",
+            "damage_text": "造成 8-12 法术冰冷伤害",
+            "description": "冰锥术： 造成 8-12 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "2",
+            "damage_effectiveness": "138%",
+            "damage_text": "造成 9-14 法术冰冷伤害",
+            "description": "冰锥术： 造成 9-14 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "3",
+            "damage_effectiveness": "140%",
+            "damage_text": "造成 12-18 法术冰冷伤害",
+            "description": "冰锥术： 造成 12-18 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "4",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 17-26 法术冰冷伤害",
+            "description": "冰锥术： 造成 17-26 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "5",
+            "damage_effectiveness": "144%",
+            "damage_text": "造成 22-33 法术冰冷伤害",
+            "description": "冰锥术： 造成 22-33 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "6",
+            "damage_effectiveness": "146%",
+            "damage_text": "造成 27-41 法术冰冷伤害",
+            "description": "冰锥术： 造成 27-41 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "7",
+            "damage_effectiveness": "149%",
+            "damage_text": "造成 32-47 法术冰冷伤害",
+            "description": "冰锥术： 造成 32-47 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "8",
+            "damage_effectiveness": "151%",
+            "damage_text": "造成 40-60 法术冰冷伤害",
+            "description": "冰锥术： 造成 40-60 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "9",
+            "damage_effectiveness": "153%",
+            "damage_text": "造成 53-79 法术冰冷伤害",
+            "description": "冰锥术： 造成 53-79 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "10",
+            "damage_effectiveness": "155%",
+            "damage_text": "造成 65-97 法术冰冷伤害",
+            "description": "冰锥术： 造成 65-97 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "11",
+            "damage_effectiveness": "157%",
+            "damage_text": "造成 85-127 法术冰冷伤害",
+            "description": "冰锥术： 造成 85-127 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "12",
+            "damage_effectiveness": "159%",
+            "damage_text": "造成 101-151 法术冰冷伤害",
+            "description": "冰锥术： 造成 101-151 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "13",
+            "damage_effectiveness": "161%",
+            "damage_text": "造成 123-185 法术冰冷伤害",
+            "description": "冰锥术： 造成 123-185 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "14",
+            "damage_effectiveness": "164%",
+            "damage_text": "造成 147-220 法术冰冷伤害",
+            "description": "冰锥术： 造成 147-220 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "15",
+            "damage_effectiveness": "166%",
+            "damage_text": "造成 176-264 法术冰冷伤害",
+            "description": "冰锥术： 造成 176-264 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "16",
+            "damage_effectiveness": "168%",
+            "damage_text": "造成 251-377 法术冰冷伤害",
+            "description": "冰锥术： 造成 251-377 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "17",
+            "damage_effectiveness": "170%",
+            "damage_text": "造成 300-449 法术冰冷伤害",
+            "description": "冰锥术： 造成 300-449 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "18",
+            "damage_effectiveness": "172%",
+            "damage_text": "造成 418-627 法术冰冷伤害",
+            "description": "冰锥术： 造成 418-627 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "19",
+            "damage_effectiveness": "174%",
+            "damage_text": "造成 632-947 法术冰冷伤害",
+            "description": "冰锥术： 造成 632-947 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "20",
+            "damage_effectiveness": "177%",
+            "damage_text": "造成 762-1144 法术冰冷伤害",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "21",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "22",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "23",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "24",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "25",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "26",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "27",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "28",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "29",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "30",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "31",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "32",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "33",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "34",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "35",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "36",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "37",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "38",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "39",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          },
+          {
+            "level": "40",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰锥术： 造成 762-1144 法术冰冷伤害 该技能 +1 弹射 次数 一般情况下，该技能发射的投射物无法命中同一个敌人 该技能的 霰弹效应 衰减系数为 64%"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "冰环术",
+    "url": "https://tlidb.com/cn/Ring_of_Ice",
+    "tags": [
+      "法术",
+      "冰冷",
+      "范围"
+    ],
+    "main_attribute": "智慧",
+    "invsible_tag": "迸发",
+    "mana_cost": "8",
+    "base_time": "0.8",
+    "level_tables": [
+      {
+        "table_type": "type2",
+        "header": [
+          "level",
+          "effectiveness",
+          "damage",
+          "Descript"
+        ],
+        "rows": [
+          {
+            "level": "1",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 8-13 法术冰冷伤害",
+            "description": "冰环： 造成 8-13 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "2",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 9-14 法术冰冷伤害",
+            "description": "冰环： 造成 9-14 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "3",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 12-18 法术冰冷伤害",
+            "description": "冰环： 造成 12-18 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "4",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 17-25 法术冰冷伤害",
+            "description": "冰环： 造成 17-25 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "5",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 22-32 法术冰冷伤害",
+            "description": "冰环： 造成 22-32 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "6",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 26-40 法术冰冷伤害",
+            "description": "冰环： 造成 26-40 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "7",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 30-45 法术冰冷伤害",
+            "description": "冰环： 造成 30-45 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "8",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 38-57 法术冰冷伤害",
+            "description": "冰环： 造成 38-57 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "9",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 49-73 法术冰冷伤害",
+            "description": "冰环： 造成 49-73 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "10",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 59-89 法术冰冷伤害",
+            "description": "冰环： 造成 59-89 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "11",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 76-114 法术冰冷伤害",
+            "description": "冰环： 造成 76-114 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "12",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 89-134 法术冰冷伤害",
+            "description": "冰环： 造成 89-134 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "13",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 108-162 法术冰冷伤害",
+            "description": "冰环： 造成 108-162 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "14",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 127-191 法术冰冷伤害",
+            "description": "冰环： 造成 127-191 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "15",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 151-226 法术冰冷伤害",
+            "description": "冰环： 造成 151-226 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "16",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 212-318 法术冰冷伤害",
+            "description": "冰环： 造成 212-318 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "17",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 250-374 法术冰冷伤害",
+            "description": "冰环： 造成 250-374 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "18",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 344-516 法术冰冷伤害",
+            "description": "冰环： 造成 344-516 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "19",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 513-770 法术冰冷伤害",
+            "description": "冰环： 造成 513-770 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "20",
+            "damage_effectiveness": "142%",
+            "damage_text": "造成 612-918 法术冰冷伤害",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "21",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "22",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "23",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "24",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "25",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "26",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "27",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "28",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "29",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "30",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "31",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "32",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "33",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "34",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "35",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "36",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "37",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "38",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "39",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          },
+          {
+            "level": "40",
+            "damage_effectiveness": "",
+            "damage_text": "",
+            "description": "冰环： 造成 612-918 法术冰冷伤害 该技能击败敌人时， +20 % 几率在敌人的位置再次触发该技能；每圈冰环只能触发一次该效果"
+          }
+        ]
+      }
+    ]
+  }
+]

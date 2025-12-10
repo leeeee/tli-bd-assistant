@@ -339,80 +339,54 @@ INSERT INTO affixes (affix_group, tier, template_text, min_val, max_val, stats, 
 ('extra_phys_fire', 2, '获得 {0}% 物理伤害的额外火焰伤害', 0.16, 0.25, '{"extra.phys_as_fire": "{0}"}', '{"Rule_Extra_As"}', '{}');
 
 -- ============================================================
--- 5. 技能 Seed
+-- 5. 技能 Seed (真实游戏数据)
 -- ============================================================
-INSERT INTO skills (id, display_name, skill_type, damage_type, is_attack, base_damage, base_time, cooldown, mana_cost, effectiveness, growth_table, tags, stats) VALUES
--- 火球术
-('skill_fireball', '火球术', 'active', 'fire', FALSE,
- '{"dmg.fire.min": 15, "dmg.fire.max": 25}',
- 0.8, NULL, 10, 1.0,
- '{"1": {"dmg.fire.min": 15, "dmg.fire.max": 25}, "10": {"dmg.fire.min": 50, "dmg.fire.max": 80}, "20": {"dmg.fire.min": 120, "dmg.fire.max": 180}}',
- '{"Tag_Spell", "Tag_Fire", "Tag_Projectile", "Tag_AOE"}',
- '{}'),
+-- 主动技能数据来源: meta-json/active_skills_with_details.json
+INSERT INTO skills (id, display_name, skill_type, damage_type, is_attack, base_time, mana_cost, effectiveness, tags, description) VALUES
+-- 超载雷球
+('skill_thunderbolt_overload', '超载雷球', 'active', 'lightning', FALSE, 0.65, 8, 0.31, 
+ '{"Tag_Spell", "Tag_AOE", "Tag_Lightning", "Tag_Projectile", "Tag_Physical", "Tag_Burst"}',
+ '该技能100%物理伤害转化为闪电伤害，分裂数量最大为5，超过5次后每超过1次额外+20%伤害'),
 
--- 冰矛
-('skill_ice_spear', '冰矛', 'active', 'cold', FALSE,
- '{"dmg.cold.min": 12, "dmg.cold.max": 20}',
- 0.7, NULL, 8, 0.9,
- '{"1": {"dmg.cold.min": 12, "dmg.cold.max": 20}, "10": {"dmg.cold.min": 45, "dmg.cold.max": 70}, "20": {"dmg.cold.min": 100, "dmg.cold.max": 160}}',
- '{"Tag_Spell", "Tag_Cold", "Tag_Projectile"}',
- '{"crit.chance": 0.02}'),
+-- 爆炎术
+('skill_fire_burst', '爆炎术', 'active', 'fire', FALSE, 0.8, 8, 1.48, 
+ '{"Tag_Spell", "Tag_AOE", "Tag_Fire", "Tag_Burst"}',
+ '造成法术火焰伤害'),
 
--- 闪电打击
-('skill_lightning_strike', '闪电打击', 'active', 'lightning', TRUE,
- '{}',
- 0.9, NULL, 12, 1.1,
- '{}',
- '{"Tag_Attack", "Tag_Melee", "Tag_Lightning", "Tag_AOE"}',
- '{"extra.phys_as_lightning": 0.5}'),
+-- 恶意枷锁
+('skill_shackles_of_malice', '恶意枷锁', 'active', 'chaos', FALSE, 1.0, 8, 1.24, 
+ '{"Tag_Spell", "Tag_Chaos", "Tag_Chain", "Tag_AOE", "Tag_Burst"}',
+ '恶意锁链造成腐蚀伤害，爆炸会移除锁链击中敌人的所有诅咒效果，锁链击中的敌人每受到1个诅咒效果影响，爆炸额外25%伤害（叠乘）'),
 
--- 重击
-('skill_heavy_strike', '重击', 'active', 'physical', TRUE,
- '{}',
- 1.0, NULL, 6, 1.5,
- '{}',
- '{"Tag_Attack", "Tag_Melee", "Tag_Physical"}',
- '{"mod.more.dmg.phys": 0.50}'),
+-- 闪电链
+('skill_chain_lightning', '闪电链', 'active', 'lightning', FALSE, 0.65, 8, 1.63, 
+ '{"Tag_Spell", "Tag_Lightning", "Tag_Chain", "Tag_Burst"}',
+ '该技能+2弹射次数'),
 
--- 旋风斩
-('skill_cyclone', '旋风斩', 'active', 'physical', TRUE,
- '{}',
- 0.3, NULL, 2, 0.5,
- '{}',
- '{"Tag_Attack", "Tag_Melee", "Tag_Physical", "Tag_AOE", "Tag_Channeling"}',
- '{}'),
+-- 冰锥术
+('skill_ice_lances', '冰锥术', 'active', 'cold', FALSE, 0.65, 8, 1.36, 
+ '{"Tag_Spell", "Tag_Projectile", "Tag_Cold", "Tag_Direct", "Tag_Burst"}',
+ '该技能+1弹射次数，投射物无法命中同一个敌人，霰弹效应衰减系数为64%'),
 
--- 闪电链 (完整技能等级示例)
-('skill_chain_lightning', '闪电链', 'active', 'lightning', FALSE,
- '{"dmg.lightning.min": 1, "dmg.lightning.max": 23}',
- 0.65, NULL, 8, 1.63,
- '{}',
- '{"Tag_Spell", "Tag_Lightning", "Tag_Chain"}',
- '{}'),
+-- 冰环术
+('skill_ring_of_ice', '冰环术', 'active', 'cold', FALSE, 0.8, 8, 1.42, 
+ '{"Tag_Spell", "Tag_Cold", "Tag_AOE", "Tag_Burst"}',
+ '该技能击败敌人时+20%几率在敌人的位置再次触发该技能，每圈冰环只能触发一次该效果'),
 
 -- 辅助：狂雷
-('support_frenzy', '狂雷', 'support', NULL, FALSE,
- '{}',
- 0, NULL, 0, 1.3,
- '{}',
+('support_frenzy', '狂雷', 'support', NULL, FALSE, 0, 0, 1.3, 
  '{"Tag_Support", "Tag_Burst"}',
- '{"mod.more.dmg.all": 0.30}'),
+ '辅助技能'),
 
 -- 辅助：增幅
-('support_empower', '增幅', 'support', NULL, FALSE,
- '{}',
- 0, NULL, 0, 1.4,
- '{}',
+('support_empower', '增幅', 'support', NULL, FALSE, 0, 0, 1.4, 
  '{"Tag_Support"}',
- '{"mod.more.dmg.all": 0.20}'),
+ '辅助技能'),
 
 -- 辅助：快速施法
-('support_faster_casting', '快速施法', 'support', NULL, FALSE,
- '{}',
- 0, NULL, 0, 1.2,
- '{}',
+('support_faster_casting', '快速施法', 'support', NULL, FALSE, 0, 0, 1.2, 
  '{"Tag_Support", "Tag_Spell"}',
- '{"speed.cast": 0.40}');
+ '辅助技能');
 
 -- 辅助技能加成
 INSERT INTO support_skill_modifiers (skill_id, level, mana_multiplier, stats, injected_tags, requirements) VALUES
@@ -427,37 +401,146 @@ INSERT INTO support_skill_modifiers (skill_id, level, mana_multiplier, stats, in
 ('support_faster_casting', 20, 1.20, '{"speed.cast": 0.50}', '{}', '{"Tag_Spell"}');
 
 -- ============================================================
--- 5.1 技能等级成长表 Seed (闪电链完整数据)
+-- 5.1 技能等级成长表 Seed (真实游戏数据 1-20级)
 -- ============================================================
--- 闪电链 1-20级数据 (21级及以上使用缩放规则计算)
-INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, mana_cost, base_time, extra_effects) VALUES
--- 1-20级：伤害倍率和基础点伤逐级提升
-('skill_chain_lightning', 1, 1.63, '{"dmg.lightning.min": 1, "dmg.lightning.max": 23}', 8, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 2, 1.64, '{"dmg.lightning.min": 1, "dmg.lightning.max": 26}', 8, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 3, 1.64, '{"dmg.lightning.min": 2, "dmg.lightning.max": 34}', 9, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 4, 1.65, '{"dmg.lightning.min": 2, "dmg.lightning.max": 47}', 9, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 5, 1.66, '{"dmg.lightning.min": 3, "dmg.lightning.max": 60}', 10, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 6, 1.66, '{"dmg.lightning.min": 4, "dmg.lightning.max": 74}', 10, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 7, 1.67, '{"dmg.lightning.min": 4, "dmg.lightning.max": 84}', 11, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 8, 1.68, '{"dmg.lightning.min": 6, "dmg.lightning.max": 106}', 11, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 9, 1.69, '{"dmg.lightning.min": 7, "dmg.lightning.max": 138}', 12, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 10, 1.69, '{"dmg.lightning.min": 9, "dmg.lightning.max": 168}', 12, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 11, 1.70, '{"dmg.lightning.min": 11, "dmg.lightning.max": 217}', 13, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 12, 1.71, '{"dmg.lightning.min": 13, "dmg.lightning.max": 256}', 13, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 13, 1.72, '{"dmg.lightning.min": 16, "dmg.lightning.max": 311}', 14, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 14, 1.73, '{"dmg.lightning.min": 19, "dmg.lightning.max": 367}', 14, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 15, 1.73, '{"dmg.lightning.min": 23, "dmg.lightning.max": 437}', 15, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 16, 1.74, '{"dmg.lightning.min": 32, "dmg.lightning.max": 617}', 15, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 17, 1.74, '{"dmg.lightning.min": 38, "dmg.lightning.max": 729}', 16, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 18, 1.75, '{"dmg.lightning.min": 53, "dmg.lightning.max": 1009}', 16, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 19, 1.76, '{"dmg.lightning.min": 80, "dmg.lightning.max": 1512}', 17, 0.65, '{"chain_count": 2}'),
-('skill_chain_lightning', 20, 1.77, '{"dmg.lightning.min": 95, "dmg.lightning.max": 1811}', 17, 0.65, '{"chain_count": 2}');
 
--- 火球术等级数据示例 (1, 10, 20级)
-INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, mana_cost, extra_effects) VALUES
-('skill_fireball', 1, 1.00, '{"dmg.fire.min": 15, "dmg.fire.max": 25}', 10, '{"aoe_radius": 1.0}'),
-('skill_fireball', 10, 1.10, '{"dmg.fire.min": 50, "dmg.fire.max": 80}', 14, '{"aoe_radius": 1.2}'),
-('skill_fireball', 20, 1.20, '{"dmg.fire.min": 120, "dmg.fire.max": 180}', 18, '{"aoe_radius": 1.5}');
+-- 超载雷球 1-20级 (物理伤害，100%转闪电)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_thunderbolt_overload', 1, 0.31, '{"dmg.phys.min": 2, "dmg.phys.max": 3}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 2, 0.31, '{"dmg.phys.min": 2, "dmg.phys.max": 3}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 3, 0.31, '{"dmg.phys.min": 2, "dmg.phys.max": 4}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 4, 0.31, '{"dmg.phys.min": 3, "dmg.phys.max": 6}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 5, 0.31, '{"dmg.phys.min": 4, "dmg.phys.max": 7}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 6, 0.31, '{"dmg.phys.min": 5, "dmg.phys.max": 9}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 7, 0.31, '{"dmg.phys.min": 6, "dmg.phys.max": 10}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 8, 0.31, '{"dmg.phys.min": 8, "dmg.phys.max": 13}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 9, 0.31, '{"dmg.phys.min": 10, "dmg.phys.max": 17}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 10, 0.31, '{"dmg.phys.min": 12, "dmg.phys.max": 20}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 11, 0.31, '{"dmg.phys.min": 15, "dmg.phys.max": 26}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 12, 0.31, '{"dmg.phys.min": 18, "dmg.phys.max": 30}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 13, 0.31, '{"dmg.phys.min": 22, "dmg.phys.max": 37}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 14, 0.31, '{"dmg.phys.min": 26, "dmg.phys.max": 43}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 15, 0.31, '{"dmg.phys.min": 31, "dmg.phys.max": 51}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 16, 0.31, '{"dmg.phys.min": 43, "dmg.phys.max": 72}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 17, 0.31, '{"dmg.phys.min": 51, "dmg.phys.max": 84}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 18, 0.31, '{"dmg.phys.min": 70, "dmg.phys.max": 116}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 19, 0.31, '{"dmg.phys.min": 104, "dmg.phys.max": 174}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}'),
+('skill_thunderbolt_overload', 20, 0.31, '{"dmg.phys.min": 124, "dmg.phys.max": 207}', '{"split_max": 5, "extra_dmg_per_split": 0.20, "conv_phys_to_lightning": 1.0}');
+
+-- 爆炎术 1-20级 (火焰伤害)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_fire_burst', 1, 1.48, '{"dmg.fire.min": 8, "dmg.fire.max": 14}', '{}'),
+('skill_fire_burst', 2, 1.49, '{"dmg.fire.min": 9, "dmg.fire.max": 16}', '{}'),
+('skill_fire_burst', 3, 1.50, '{"dmg.fire.min": 11, "dmg.fire.max": 21}', '{}'),
+('skill_fire_burst', 4, 1.50, '{"dmg.fire.min": 16, "dmg.fire.max": 29}', '{}'),
+('skill_fire_burst', 5, 1.51, '{"dmg.fire.min": 20, "dmg.fire.max": 37}', '{}'),
+('skill_fire_burst', 6, 1.52, '{"dmg.fire.min": 25, "dmg.fire.max": 46}', '{}'),
+('skill_fire_burst', 7, 1.52, '{"dmg.fire.min": 28, "dmg.fire.max": 53}', '{}'),
+('skill_fire_burst', 8, 1.53, '{"dmg.fire.min": 36, "dmg.fire.max": 66}', '{}'),
+('skill_fire_burst', 9, 1.53, '{"dmg.fire.min": 46, "dmg.fire.max": 86}', '{}'),
+('skill_fire_burst', 10, 1.54, '{"dmg.fire.min": 56, "dmg.fire.max": 105}', '{}'),
+('skill_fire_burst', 11, 1.55, '{"dmg.fire.min": 73, "dmg.fire.max": 135}', '{}'),
+('skill_fire_burst', 12, 1.55, '{"dmg.fire.min": 86, "dmg.fire.max": 159}', '{}'),
+('skill_fire_burst', 13, 1.56, '{"dmg.fire.min": 104, "dmg.fire.max": 194}', '{}'),
+('skill_fire_burst', 14, 1.57, '{"dmg.fire.min": 123, "dmg.fire.max": 229}', '{}'),
+('skill_fire_burst', 15, 1.57, '{"dmg.fire.min": 146, "dmg.fire.max": 272}', '{}'),
+('skill_fire_burst', 16, 1.58, '{"dmg.fire.min": 207, "dmg.fire.max": 384}', '{}'),
+('skill_fire_burst', 17, 1.59, '{"dmg.fire.min": 245, "dmg.fire.max": 454}', '{}'),
+('skill_fire_burst', 18, 1.59, '{"dmg.fire.min": 338, "dmg.fire.max": 628}', '{}'),
+('skill_fire_burst', 19, 1.60, '{"dmg.fire.min": 507, "dmg.fire.max": 942}', '{}'),
+('skill_fire_burst', 20, 1.61, '{"dmg.fire.min": 607, "dmg.fire.max": 1128}', '{}');
+
+-- 恶意枷锁 1-20级 (腐蚀伤害，双段伤害)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_shackles_of_malice', 1, 1.24, '{"dmg.chaos.min": 9, "dmg.chaos.max": 9, "dmg.chaos.explosion.min": 9, "dmg.chaos.explosion.max": 9}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 2, 1.24, '{"dmg.chaos.min": 10, "dmg.chaos.max": 10, "dmg.chaos.explosion.min": 10, "dmg.chaos.explosion.max": 10}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 3, 1.24, '{"dmg.chaos.min": 13, "dmg.chaos.max": 13, "dmg.chaos.explosion.min": 13, "dmg.chaos.explosion.max": 13}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 4, 1.24, '{"dmg.chaos.min": 18, "dmg.chaos.max": 18, "dmg.chaos.explosion.min": 18, "dmg.chaos.explosion.max": 18}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 5, 1.24, '{"dmg.chaos.min": 24, "dmg.chaos.max": 24, "dmg.chaos.explosion.min": 24, "dmg.chaos.explosion.max": 24}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 6, 1.24, '{"dmg.chaos.min": 29, "dmg.chaos.max": 29, "dmg.chaos.explosion.min": 29, "dmg.chaos.explosion.max": 29}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 7, 1.24, '{"dmg.chaos.min": 33, "dmg.chaos.max": 33, "dmg.chaos.explosion.min": 33, "dmg.chaos.explosion.max": 33}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 8, 1.24, '{"dmg.chaos.min": 41, "dmg.chaos.max": 41, "dmg.chaos.explosion.min": 41, "dmg.chaos.explosion.max": 41}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 9, 1.24, '{"dmg.chaos.min": 53, "dmg.chaos.max": 53, "dmg.chaos.explosion.min": 53, "dmg.chaos.explosion.max": 53}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 10, 1.24, '{"dmg.chaos.min": 65, "dmg.chaos.max": 65, "dmg.chaos.explosion.min": 65, "dmg.chaos.explosion.max": 65}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 11, 1.24, '{"dmg.chaos.min": 83, "dmg.chaos.max": 83, "dmg.chaos.explosion.min": 83, "dmg.chaos.explosion.max": 83}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 12, 1.24, '{"dmg.chaos.min": 98, "dmg.chaos.max": 98, "dmg.chaos.explosion.min": 98, "dmg.chaos.explosion.max": 98}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 13, 1.24, '{"dmg.chaos.min": 118, "dmg.chaos.max": 118, "dmg.chaos.explosion.min": 118, "dmg.chaos.explosion.max": 118}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 14, 1.24, '{"dmg.chaos.min": 139, "dmg.chaos.max": 139, "dmg.chaos.explosion.min": 139, "dmg.chaos.explosion.max": 139}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 15, 1.24, '{"dmg.chaos.min": 164, "dmg.chaos.max": 164, "dmg.chaos.explosion.min": 164, "dmg.chaos.explosion.max": 164}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 16, 1.24, '{"dmg.chaos.min": 231, "dmg.chaos.max": 231, "dmg.chaos.explosion.min": 231, "dmg.chaos.explosion.max": 231}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 17, 1.24, '{"dmg.chaos.min": 272, "dmg.chaos.max": 272, "dmg.chaos.explosion.min": 272, "dmg.chaos.explosion.max": 272}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 18, 1.24, '{"dmg.chaos.min": 375, "dmg.chaos.max": 375, "dmg.chaos.explosion.min": 375, "dmg.chaos.explosion.max": 375}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 19, 1.24, '{"dmg.chaos.min": 559, "dmg.chaos.max": 559, "dmg.chaos.explosion.min": 559, "dmg.chaos.explosion.max": 559}', '{"curse_bonus_per_stack": 0.25}'),
+('skill_shackles_of_malice', 20, 1.24, '{"dmg.chaos.min": 667, "dmg.chaos.max": 667, "dmg.chaos.explosion.min": 667, "dmg.chaos.explosion.max": 667}', '{"curse_bonus_per_stack": 0.25}');
+
+-- 闪电链 1-20级 (闪电伤害)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_chain_lightning', 1, 1.63, '{"dmg.lightning.min": 1, "dmg.lightning.max": 23}', '{"chain_count": 2}'),
+('skill_chain_lightning', 2, 1.64, '{"dmg.lightning.min": 1, "dmg.lightning.max": 26}', '{"chain_count": 2}'),
+('skill_chain_lightning', 3, 1.64, '{"dmg.lightning.min": 2, "dmg.lightning.max": 34}', '{"chain_count": 2}'),
+('skill_chain_lightning', 4, 1.65, '{"dmg.lightning.min": 2, "dmg.lightning.max": 47}', '{"chain_count": 2}'),
+('skill_chain_lightning', 5, 1.66, '{"dmg.lightning.min": 3, "dmg.lightning.max": 60}', '{"chain_count": 2}'),
+('skill_chain_lightning', 6, 1.66, '{"dmg.lightning.min": 4, "dmg.lightning.max": 74}', '{"chain_count": 2}'),
+('skill_chain_lightning', 7, 1.67, '{"dmg.lightning.min": 4, "dmg.lightning.max": 84}', '{"chain_count": 2}'),
+('skill_chain_lightning', 8, 1.68, '{"dmg.lightning.min": 6, "dmg.lightning.max": 106}', '{"chain_count": 2}'),
+('skill_chain_lightning', 9, 1.69, '{"dmg.lightning.min": 7, "dmg.lightning.max": 138}', '{"chain_count": 2}'),
+('skill_chain_lightning', 10, 1.69, '{"dmg.lightning.min": 9, "dmg.lightning.max": 168}', '{"chain_count": 2}'),
+('skill_chain_lightning', 11, 1.70, '{"dmg.lightning.min": 11, "dmg.lightning.max": 217}', '{"chain_count": 2}'),
+('skill_chain_lightning', 12, 1.71, '{"dmg.lightning.min": 13, "dmg.lightning.max": 256}', '{"chain_count": 2}'),
+('skill_chain_lightning', 13, 1.72, '{"dmg.lightning.min": 16, "dmg.lightning.max": 311}', '{"chain_count": 2}'),
+('skill_chain_lightning', 14, 1.72, '{"dmg.lightning.min": 19, "dmg.lightning.max": 367}', '{"chain_count": 2}'),
+('skill_chain_lightning', 15, 1.73, '{"dmg.lightning.min": 23, "dmg.lightning.max": 437}', '{"chain_count": 2}'),
+('skill_chain_lightning', 16, 1.74, '{"dmg.lightning.min": 32, "dmg.lightning.max": 617}', '{"chain_count": 2}'),
+('skill_chain_lightning', 17, 1.74, '{"dmg.lightning.min": 38, "dmg.lightning.max": 729}', '{"chain_count": 2}'),
+('skill_chain_lightning', 18, 1.75, '{"dmg.lightning.min": 53, "dmg.lightning.max": 1009}', '{"chain_count": 2}'),
+('skill_chain_lightning', 19, 1.76, '{"dmg.lightning.min": 80, "dmg.lightning.max": 1512}', '{"chain_count": 2}'),
+('skill_chain_lightning', 20, 1.77, '{"dmg.lightning.min": 95, "dmg.lightning.max": 1811}', '{"chain_count": 2}');
+
+-- 冰锥术 1-20级 (冰冷伤害)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_ice_lances', 1, 1.36, '{"dmg.cold.min": 8, "dmg.cold.max": 12}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 2, 1.38, '{"dmg.cold.min": 9, "dmg.cold.max": 14}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 3, 1.40, '{"dmg.cold.min": 12, "dmg.cold.max": 18}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 4, 1.42, '{"dmg.cold.min": 17, "dmg.cold.max": 26}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 5, 1.44, '{"dmg.cold.min": 22, "dmg.cold.max": 33}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 6, 1.46, '{"dmg.cold.min": 27, "dmg.cold.max": 41}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 7, 1.49, '{"dmg.cold.min": 32, "dmg.cold.max": 47}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 8, 1.51, '{"dmg.cold.min": 40, "dmg.cold.max": 60}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 9, 1.53, '{"dmg.cold.min": 53, "dmg.cold.max": 79}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 10, 1.55, '{"dmg.cold.min": 65, "dmg.cold.max": 97}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 11, 1.57, '{"dmg.cold.min": 85, "dmg.cold.max": 127}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 12, 1.59, '{"dmg.cold.min": 101, "dmg.cold.max": 151}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 13, 1.61, '{"dmg.cold.min": 123, "dmg.cold.max": 185}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 14, 1.64, '{"dmg.cold.min": 147, "dmg.cold.max": 220}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 15, 1.66, '{"dmg.cold.min": 176, "dmg.cold.max": 264}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 16, 1.68, '{"dmg.cold.min": 251, "dmg.cold.max": 377}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 17, 1.70, '{"dmg.cold.min": 300, "dmg.cold.max": 449}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 18, 1.72, '{"dmg.cold.min": 418, "dmg.cold.max": 627}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 19, 1.74, '{"dmg.cold.min": 632, "dmg.cold.max": 947}', '{"chain_count": 1, "shotgun_decay": 0.64}'),
+('skill_ice_lances', 20, 1.77, '{"dmg.cold.min": 762, "dmg.cold.max": 1144}', '{"chain_count": 1, "shotgun_decay": 0.64}');
+
+-- 冰环术 1-20级 (冰冷伤害)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, extra_effects) VALUES
+('skill_ring_of_ice', 1, 1.42, '{"dmg.cold.min": 8, "dmg.cold.max": 13}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 2, 1.42, '{"dmg.cold.min": 9, "dmg.cold.max": 14}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 3, 1.42, '{"dmg.cold.min": 12, "dmg.cold.max": 18}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 4, 1.42, '{"dmg.cold.min": 17, "dmg.cold.max": 25}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 5, 1.42, '{"dmg.cold.min": 22, "dmg.cold.max": 32}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 6, 1.42, '{"dmg.cold.min": 26, "dmg.cold.max": 40}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 7, 1.42, '{"dmg.cold.min": 30, "dmg.cold.max": 45}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 8, 1.42, '{"dmg.cold.min": 38, "dmg.cold.max": 57}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 9, 1.42, '{"dmg.cold.min": 49, "dmg.cold.max": 73}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 10, 1.42, '{"dmg.cold.min": 59, "dmg.cold.max": 89}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 11, 1.42, '{"dmg.cold.min": 76, "dmg.cold.max": 114}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 12, 1.42, '{"dmg.cold.min": 89, "dmg.cold.max": 134}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 13, 1.42, '{"dmg.cold.min": 108, "dmg.cold.max": 162}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 14, 1.42, '{"dmg.cold.min": 127, "dmg.cold.max": 191}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 15, 1.42, '{"dmg.cold.min": 151, "dmg.cold.max": 226}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 16, 1.42, '{"dmg.cold.min": 212, "dmg.cold.max": 318}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 17, 1.42, '{"dmg.cold.min": 250, "dmg.cold.max": 374}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 18, 1.42, '{"dmg.cold.min": 344, "dmg.cold.max": 516}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 19, 1.42, '{"dmg.cold.min": 513, "dmg.cold.max": 770}', '{"retrigger_chance": 0.20}'),
+('skill_ring_of_ice', 20, 1.42, '{"dmg.cold.min": 612, "dmg.cold.max": 918}', '{"retrigger_chance": 0.20}');
 
 -- ============================================================
 -- 6. 传奇装备 Seed

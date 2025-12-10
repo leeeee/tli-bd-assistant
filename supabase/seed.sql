@@ -58,6 +58,7 @@ INSERT INTO tags_registry (tag_key, category, display_name, parents, description
 ('Tag_Belt', 'Identity', '腰带', '{"Tag_Accessory"}', '腰部饰品'),
 
 -- 技能机制标签
+('Tag_Chain', 'Identity', '连锁', '{}', '连锁弹射类技能'),
 ('Tag_Aura', 'Identity', '光环', '{}', '光环技能'),
 ('Tag_Minion', 'Identity', '召唤物', '{}', '召唤物'),
 ('Tag_Channeling', 'Identity', '吟唱', '{}', '吟唱技能'),
@@ -381,6 +382,14 @@ INSERT INTO skills (id, display_name, skill_type, damage_type, is_attack, base_d
  '{"Tag_Attack", "Tag_Melee", "Tag_Physical", "Tag_AOE", "Tag_Channeling"}',
  '{}'),
 
+-- 闪电链 (完整技能等级示例)
+('skill_chain_lightning', '闪电链', 'active', 'lightning', FALSE,
+ '{"dmg.lightning.min": 1, "dmg.lightning.max": 23}',
+ 0.65, NULL, 8, 1.63,
+ '{}',
+ '{"Tag_Spell", "Tag_Lightning", "Tag_Chain"}',
+ '{}'),
+
 -- 辅助：狂雷
 ('support_frenzy', '狂雷', 'support', NULL, FALSE,
  '{}',
@@ -416,6 +425,39 @@ INSERT INTO support_skill_modifiers (skill_id, level, mana_multiplier, stats, in
 ('support_faster_casting', 1, 1.20, '{"speed.cast": 0.30}', '{}', '{"Tag_Spell"}'),
 ('support_faster_casting', 10, 1.20, '{"speed.cast": 0.40}', '{}', '{"Tag_Spell"}'),
 ('support_faster_casting', 20, 1.20, '{"speed.cast": 0.50}', '{}', '{"Tag_Spell"}');
+
+-- ============================================================
+-- 5.1 技能等级成长表 Seed (闪电链完整数据)
+-- ============================================================
+-- 闪电链 1-20级数据 (21级及以上使用缩放规则计算)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, mana_cost, base_time, extra_effects) VALUES
+-- 1-20级：伤害倍率和基础点伤逐级提升
+('skill_chain_lightning', 1, 1.63, '{"dmg.lightning.min": 1, "dmg.lightning.max": 23}', 8, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 2, 1.64, '{"dmg.lightning.min": 1, "dmg.lightning.max": 26}', 8, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 3, 1.64, '{"dmg.lightning.min": 2, "dmg.lightning.max": 34}', 9, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 4, 1.65, '{"dmg.lightning.min": 2, "dmg.lightning.max": 47}', 9, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 5, 1.66, '{"dmg.lightning.min": 3, "dmg.lightning.max": 60}', 10, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 6, 1.66, '{"dmg.lightning.min": 4, "dmg.lightning.max": 74}', 10, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 7, 1.67, '{"dmg.lightning.min": 4, "dmg.lightning.max": 84}', 11, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 8, 1.68, '{"dmg.lightning.min": 6, "dmg.lightning.max": 106}', 11, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 9, 1.69, '{"dmg.lightning.min": 7, "dmg.lightning.max": 138}', 12, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 10, 1.69, '{"dmg.lightning.min": 9, "dmg.lightning.max": 168}', 12, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 11, 1.70, '{"dmg.lightning.min": 11, "dmg.lightning.max": 217}', 13, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 12, 1.71, '{"dmg.lightning.min": 13, "dmg.lightning.max": 256}', 13, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 13, 1.72, '{"dmg.lightning.min": 16, "dmg.lightning.max": 311}', 14, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 14, 1.73, '{"dmg.lightning.min": 19, "dmg.lightning.max": 367}', 14, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 15, 1.73, '{"dmg.lightning.min": 23, "dmg.lightning.max": 437}', 15, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 16, 1.74, '{"dmg.lightning.min": 32, "dmg.lightning.max": 617}', 15, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 17, 1.74, '{"dmg.lightning.min": 38, "dmg.lightning.max": 729}', 16, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 18, 1.75, '{"dmg.lightning.min": 53, "dmg.lightning.max": 1009}', 16, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 19, 1.76, '{"dmg.lightning.min": 80, "dmg.lightning.max": 1512}', 17, 0.65, '{"chain_count": 2}'),
+('skill_chain_lightning', 20, 1.77, '{"dmg.lightning.min": 95, "dmg.lightning.max": 1811}', 17, 0.65, '{"chain_count": 2}');
+
+-- 火球术等级数据示例 (1, 10, 20级)
+INSERT INTO skill_level_data (skill_id, level, effectiveness, base_damage, mana_cost, extra_effects) VALUES
+('skill_fireball', 1, 1.00, '{"dmg.fire.min": 15, "dmg.fire.max": 25}', 10, '{"aoe_radius": 1.0}'),
+('skill_fireball', 10, 1.10, '{"dmg.fire.min": 50, "dmg.fire.max": 80}', 14, '{"aoe_radius": 1.2}'),
+('skill_fireball', 20, 1.20, '{"dmg.fire.min": 120, "dmg.fire.max": 180}', 18, '{"aoe_radius": 1.5}');
 
 -- ============================================================
 -- 6. 传奇装备 Seed

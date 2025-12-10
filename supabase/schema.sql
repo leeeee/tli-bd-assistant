@@ -196,7 +196,60 @@ COMMENT ON COLUMN skills.growth_table IS '等级成长表JSONB，键为等级，
 COMMENT ON COLUMN skills.base_time IS '基础施放/攻击时间（秒），Rate = 1/base_time * speed_modifiers';
 
 -- ============================================================
--- 8. 辅助技能加成表 (support_skill_modifiers)
+-- 8. 技能等级成长表 (skill_level_data)
+-- 存储每个技能每个等级的具体数值
+-- ============================================================
+CREATE TABLE skill_level_data (
+    id SERIAL PRIMARY KEY,
+    skill_id VARCHAR(64) NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    level INTEGER NOT NULL,                        -- 技能等级 (1-20 详细数据, 21+ 使用公式)
+    effectiveness DECIMAL(6,4) NOT NULL,           -- 伤害倍率，如 1.63 = 163%
+    base_damage JSONB NOT NULL DEFAULT '{}',       -- 基础伤害，如 {"dmg.lightning.min": 1, "dmg.lightning.max": 23}
+    mana_cost INTEGER,                             -- 该等级魔力消耗（可覆盖技能默认值）
+    base_time DECIMAL(6,3),                        -- 该等级施法/攻击时间（可覆盖技能默认值）
+    extra_effects JSONB DEFAULT '{}',              -- 额外效果，如 {"chain_count": 2, "aoe_radius": 10}
+    stats JSONB DEFAULT '{}',                      -- 该等级额外属性加成
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(skill_id, level)
+);
+
+CREATE INDEX idx_skill_level_skill ON skill_level_data(skill_id);
+CREATE INDEX idx_skill_level_level ON skill_level_data(level);
+
+COMMENT ON TABLE skill_level_data IS '技能等级成长表，存储1-20级详细数据';
+COMMENT ON COLUMN skill_level_data.effectiveness IS '伤害倍率（Damage Effectiveness），1.63 = 163%';
+COMMENT ON COLUMN skill_level_data.base_damage IS '该等级基础伤害，JSONB格式';
+COMMENT ON COLUMN skill_level_data.extra_effects IS '额外效果，如弹射次数、AOE半径等';
+
+-- ============================================================
+-- 9. 技能等级缩放规则表 (skill_scaling_rules)
+-- 定义21级及以上的伤害缩放规则
+-- ============================================================
+CREATE TABLE skill_scaling_rules (
+    id SERIAL PRIMARY KEY,
+    skill_id VARCHAR(64) NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    level_range_start INTEGER NOT NULL,            -- 等级范围起始（含）
+    level_range_end INTEGER,                       -- 等级范围结束（含），NULL表示无上限
+    damage_multiplier_per_level DECIMAL(6,4) NOT NULL, -- 每级伤害乘数，如 1.10 = +10%
+    scaling_type VARCHAR(32) DEFAULT 'multiplicative', -- 缩放类型: multiplicative / additive
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_skill_scaling_skill ON skill_scaling_rules(skill_id);
+
+-- 插入默认的伤害性技能缩放规则（通用规则，skill_id 为空表示全局默认）
+INSERT INTO skill_scaling_rules (skill_id, level_range_start, level_range_end, damage_multiplier_per_level, description)
+VALUES 
+    ('_default_damage', 21, 30, 1.10, '21-30级：每级额外+10%伤害（叠乘）'),
+    ('_default_damage', 31, NULL, 1.08, '31级及以上：每级额外+8%伤害（叠乘）');
+
+COMMENT ON TABLE skill_scaling_rules IS '技能等级缩放规则表，定义21级以上的伤害公式';
+COMMENT ON COLUMN skill_scaling_rules.damage_multiplier_per_level IS '每级伤害乘数，叠乘计算';
+COMMENT ON COLUMN skill_scaling_rules.level_range_end IS '等级范围结束，NULL表示无上限';
+
+-- ============================================================
+-- 10. 辅助技能加成表 (support_skill_modifiers)
 -- 存储辅助技能对主技能的加成效果
 -- ============================================================
 CREATE TABLE support_skill_modifiers (
@@ -218,7 +271,7 @@ COMMENT ON COLUMN support_skill_modifiers.mana_multiplier IS '魔力消耗倍率
 COMMENT ON COLUMN support_skill_modifiers.injected_tags IS '注入主技能的标签，如狂雷注入Tag_Burst';
 
 -- ============================================================
--- 9. 英雄特性表 (hero_traits) - 占位结构
+-- 11. 英雄特性表 (hero_traits) - 占位结构
 -- ============================================================
 CREATE TABLE hero_traits (
     id VARCHAR(64) PRIMARY KEY,
@@ -241,7 +294,7 @@ CREATE INDEX idx_hero_traits_type ON hero_traits(trait_type);
 COMMENT ON TABLE hero_traits IS '英雄特性节点表（占位结构）';
 
 -- ============================================================
--- 10. 英雄追忆表 (hero_memories) - 占位结构
+-- 12. 英雄追忆表 (hero_memories) - 占位结构
 -- ============================================================
 CREATE TABLE hero_memories (
     id VARCHAR(64) PRIMARY KEY,
@@ -264,7 +317,7 @@ CREATE INDEX idx_hero_memories_slot ON hero_memories(slot);
 COMMENT ON TABLE hero_memories IS '英雄追忆节点表（占位结构）';
 
 -- ============================================================
--- 11. 石板表 (pacts) - 用于存储石板数据
+-- 13. 石板表 (pacts) - 用于存储石板数据
 -- ============================================================
 CREATE TABLE pacts (
     id VARCHAR(64) PRIMARY KEY,
@@ -283,7 +336,7 @@ CREATE INDEX idx_pacts_type ON pacts(pact_type);
 COMMENT ON TABLE pacts IS '石板数据表';
 
 -- ============================================================
--- 12. 伤害转化规则表 (conversion_rules)
+-- 14. 伤害转化规则表 (conversion_rules)
 -- 定义伤害类型转化的DAG顺序
 -- ============================================================
 CREATE TABLE conversion_rules (
@@ -313,7 +366,7 @@ COMMENT ON TABLE conversion_rules IS '伤害转化DAG规则表，确保转化顺
 COMMENT ON COLUMN conversion_rules.priority IS '转化优先级，数字越小越先执行';
 
 -- ============================================================
--- 13. 目标配置模板表 (target_configs)
+-- 15. 目标配置模板表 (target_configs)
 -- 预设的目标配置（用于快速选择）
 -- ============================================================
 CREATE TABLE target_configs (
@@ -350,6 +403,8 @@ ALTER TABLE affixes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE unique_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE unique_affixes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skills ENABLE ROW LEVEL SECURITY;
+ALTER TABLE skill_level_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE skill_scaling_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_skill_modifiers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hero_traits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hero_memories ENABLE ROW LEVEL SECURITY;
@@ -365,6 +420,8 @@ CREATE POLICY "Allow public read" ON affixes FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON unique_items FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON unique_affixes FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON skills FOR SELECT USING (true);
+CREATE POLICY "Allow public read" ON skill_level_data FOR SELECT USING (true);
+CREATE POLICY "Allow public read" ON skill_scaling_rules FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON support_skill_modifiers FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON hero_traits FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON hero_memories FOR SELECT USING (true);

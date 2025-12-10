@@ -213,7 +213,7 @@ pub struct SkillData {
     #[serde(default = "default_skill_level")]
     pub level: u32,
     
-    /// 基础伤害
+    /// 基础伤害 (1级默认值，实际计算时由等级数据覆盖)
     #[serde(default)]
     pub base_damage: HashMap<String, f64>,
     
@@ -229,7 +229,7 @@ pub struct SkillData {
     #[serde(default)]
     pub mana_cost: u32,
     
-    /// Damage Effectiveness
+    /// Damage Effectiveness (1级默认值，实际计算时由等级数据覆盖)
     #[serde(default = "default_effectiveness")]
     pub effectiveness: f64,
     
@@ -248,6 +248,60 @@ pub struct SkillData {
     /// 辅助技能：魔力倍率
     #[serde(default = "default_mana_multiplier")]
     pub mana_multiplier: f64,
+    
+    /// 技能等级数据 (1-20级详细数据，可选)
+    #[serde(default)]
+    pub level_data: Option<SkillLevelData>,
+    
+    /// 缩放规则 (21级及以上)
+    #[serde(default)]
+    pub scaling_rules: Vec<SkillScalingRule>,
+}
+
+/// 技能等级数据
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct SkillLevelData {
+    /// 伤害倍率 (Damage Effectiveness)，如 1.63 = 163%
+    pub effectiveness: f64,
+    
+    /// 基础伤害
+    pub base_damage: HashMap<String, f64>,
+    
+    /// 魔力消耗 (可选，覆盖默认值)
+    #[serde(default)]
+    pub mana_cost: Option<u32>,
+    
+    /// 施法/攻击时间 (可选，覆盖默认值)
+    #[serde(default)]
+    pub base_time: Option<f64>,
+    
+    /// 额外效果 (如弹射次数、AOE 半径等)
+    #[serde(default)]
+    pub extra_effects: HashMap<String, f64>,
+    
+    /// 该等级额外属性加成
+    #[serde(default)]
+    pub stats: HashMap<String, f64>,
+}
+
+/// 技能等级缩放规则
+/// 
+/// 用于 21 级及以上的伤害缩放计算：
+/// - 21-30 级：每级额外 +10% 伤害（叠乘）
+/// - 31 级及以上：每级额外 +8% 伤害（叠乘）
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct SkillScalingRule {
+    /// 等级范围起始（含）
+    pub level_start: u32,
+    
+    /// 等级范围结束（含），None 表示无上限
+    #[serde(default)]
+    pub level_end: Option<u32>,
+    
+    /// 每级伤害乘数，如 1.10 = +10%
+    pub multiplier_per_level: f64,
 }
 
 fn default_skill_level() -> u32 { 1 }

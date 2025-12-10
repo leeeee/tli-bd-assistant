@@ -246,16 +246,93 @@ fn sanitize_items(
     Ok(result)
 }
 
+/// 获取技能在指定等级的有效数据
+/// 
+/// 逻辑：
+/// - 1-20级：使用 level_data 中的具体数据
+/// - 21-30级：使用20级数据 + 每级叠乘 1.10 (默认)
+/// - 31级及以上：使用30级数据 + 每级叠乘 1.08 (默认)
+fn get_skill_effective_data(skill: &SkillData) -> (HashMap<String, f64>, f64, f64) {
+    let level = skill.level;
+    
+    // 如果有等级数据，使用它
+    if let Some(level_data) = &skill.level_data {
+        let base_damage = level_data.base_damage.clone();
+        let effectiveness = level_data.effectiveness;
+        
+        // 计算等级缩放乘数
+        let level_multiplier = calculate_level_scaling(level, &skill.scaling_rules);
+        
+        return (base_damage, effectiveness, level_multiplier);
+    }
+    
+    // 否则使用默认数据
+    let base_damage = skill.base_damage.clone();
+    let effectiveness = skill.effectiveness;
+    let level_multiplier = calculate_level_scaling(level, &skill.scaling_rules);
+    
+    (base_damage, effectiveness, level_multiplier)
+}
+
+/// 计算技能等级缩放乘数
+/// 
+/// 默认规则：
+/// - 1-20级：无额外缩放 (multiplier = 1.0)
+/// - 21-30级：每级 +10% (叠乘)
+/// - 31级及以上：每级 +8% (叠乘)
+fn calculate_level_scaling(level: u32, rules: &[SkillScalingRule]) -> f64 {
+    if level <= 20 {
+        return 1.0;
+    }
+    
+    let mut multiplier = 1.0;
+    
+    // 使用自定义规则
+    if !rules.is_empty() {
+        for rule in rules {
+            if level >= rule.level_start {
+                let end = rule.level_end.unwrap_or(u32::MAX);
+                if level <= end {
+                    let levels_in_range = (level - rule.level_start + 1).min(
+                        end.saturating_sub(rule.level_start) + 1
+                    );
+                    multiplier *= rule.multiplier_per_level.powi(levels_in_range as i32);
+                } else {
+                    // 完整应用此区间
+                    let levels_in_range = end - rule.level_start + 1;
+                    multiplier *= rule.multiplier_per_level.powi(levels_in_range as i32);
+                }
+            }
+        }
+    } else {
+        // 使用默认规则
+        // 21-30级：每级 +10%
+        if level > 20 {
+            let levels_21_30 = (level.min(30) - 20) as i32;
+            multiplier *= 1.10_f64.powi(levels_21_30);
+        }
+        // 31级及以上：每级 +8%
+        if level > 30 {
+            let levels_31_plus = (level - 30) as i32;
+            multiplier *= 1.08_f64.powi(levels_31_plus);
+        }
+    }
+    
+    multiplier
+}
+
 /// 3. 计算基础伤害
 fn calculate_base_damage(
     pool: &StatPool,
     skill: &SkillData,
 ) -> HashMap<DamageType, (f64, f64)> {
     let mut base = HashMap::new();
-    let effectiveness = skill.effectiveness;
+    
+    // 获取等级有效数据
+    let (base_damage_map, effectiveness, level_multiplier) = get_skill_effective_data(skill);
 
     // 从技能获取基础伤害
-    for (key, value) in &skill.base_damage {
+    for (key, value) in &base_damage_map {
         if key.contains("phys") {
             let entry = base.entry(DamageType::Physical).or_insert((0.0, 0.0));
             if key.contains("min") {
@@ -309,6 +386,14 @@ fn calculate_base_damage(
     for (_, (min, max)) in base.iter_mut() {
         *min *= effectiveness;
         *max *= effectiveness;
+    }
+    
+    // 应用等级缩放乘数 (21级及以上的 More 乘数)
+    if level_multiplier > 1.0 {
+        for (_, (min, max)) in base.iter_mut() {
+            *min *= level_multiplier;
+            *max *= level_multiplier;
+        }
     }
 
     base
@@ -607,6 +692,8 @@ mod tests {
                 stats: HashMap::new(),
                 injected_tags: vec![],
                 mana_multiplier: 1.0,
+                level_data: None,
+                scaling_rules: vec![],
             },
             support_skills: vec![],
             global_overrides: HashMap::new(),

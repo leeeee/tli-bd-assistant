@@ -862,7 +862,8 @@ fn build_multiplier_breakdown(
 
     // 4. 暴击期望区
     // 公式: 1 + crit_chance * (crit_multiplier - 1)
-    // 注意: crit_multiplier 已包含基础 1.0x，需减去避免重复计算
+    // crit_multiplier 语义: 1.5 = 150% 总暴击伤害 (非暴击时为 100%)
+    // 例: 50% 暴击率, 150% 暴击伤害 → 1 + 0.5 * 0.5 = 1.25 倍期望伤害
     let effective_crit_chance = crit_chance.min(1.0).max(0.0);
     let crit_zone = 1.0 + effective_crit_chance * (crit_multiplier - 1.0);
     zone_sources.insert("crit".to_string(), vec![
@@ -1067,4 +1068,3 @@ mod tests {
         assert!(result.damage_breakdown.by_type.contains_key("fire"));
     }
 }
-

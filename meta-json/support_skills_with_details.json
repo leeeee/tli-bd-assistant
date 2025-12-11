@@ -1,0 +1,552 @@
+[
+    {
+        "name": "闪电转冰冷",
+        "description": "辅助击中敌人的技能。被辅助技能100% 闪电伤害转化为冰冷伤害被辅助技能额外+25%闪电伤害",
+        "id": "Lightning_to_Cold",
+        "tags": [
+          "辅助",
+          "闪电",
+          "冰冷"
+        ],
+        "main_attribute": null,
+        "mana_cost": null,
+        "multiplier": null,
+        "level_tables": [
+          {
+            "table_type": "skill",
+            "header": [
+              "level",
+              "被辅助技能额外增加闪电伤害"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "value": "15.5"
+              },
+              {
+                "level": "2",
+                "value": "16"
+              },
+              {
+                "level": "3",
+                "value": "16.5"
+              },
+              {
+                "level": "4",
+                "value": "17"
+              },
+              {
+                "level": "5",
+                "value": "17.5"
+              },
+              {
+                "level": "6",
+                "value": "18"
+              },
+              {
+                "level": "7",
+                "value": "18.5"
+              },
+              {
+                "level": "8",
+                "value": "19"
+              },
+              {
+                "level": "9",
+                "value": "19.5"
+              },
+              {
+                "level": "10",
+                "value": "20"
+              },
+              {
+                "level": "11",
+                "value": "20.5"
+              },
+              {
+                "level": "12",
+                "value": "21"
+              },
+              {
+                "level": "13",
+                "value": "21.5"
+              },
+              {
+                "level": "14",
+                "value": "22"
+              },
+              {
+                "level": "15",
+                "value": "22.5"
+              },
+              {
+                "level": "16",
+                "value": "23"
+              },
+              {
+                "level": "17",
+                "value": "23.5"
+              },
+              {
+                "level": "18",
+                "value": "24"
+              },
+              {
+                "level": "19",
+                "value": "24.5"
+              },
+              {
+                "level": "20",
+                "value": "25"
+              },
+              {
+                "level": "21",
+                "value": "51/2"
+              },
+              {
+                "level": "22",
+                "value": "26"
+              },
+              {
+                "level": "23",
+                "value": "26.5"
+              },
+              {
+                "level": "24",
+                "value": "27"
+              },
+              {
+                "level": "25",
+                "value": "27.5"
+              },
+              {
+                "level": "26",
+                "value": "28"
+              },
+              {
+                "level": "27",
+                "value": "28.5"
+              },
+              {
+                "level": "28",
+                "value": "29"
+              },
+              {
+                "level": "29",
+                "value": "29.5"
+              },
+              {
+                "level": "30",
+                "value": "30"
+              },
+              {
+                "level": "31",
+                "value": "30.5"
+              },
+              {
+                "level": "32",
+                "value": "31"
+              },
+              {
+                "level": "33",
+                "value": "31.5"
+              },
+              {
+                "level": "34",
+                "value": "32"
+              },
+              {
+                "level": "35",
+                "value": "32.5"
+              },
+              {
+                "level": "36",
+                "value": "33"
+              },
+              {
+                "level": "37",
+                "value": "33.5"
+              },
+              {
+                "level": "38",
+                "value": "34"
+              },
+              {
+                "level": "39",
+                "value": "34.5"
+              },
+              {
+                "level": "40",
+                "value": "35"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "电能超载",
+        "description": "辅助能造成伤害的技能。被辅助技能额外+15%闪电伤害；被辅助技能暴击时获得增益；增益使该技能额外+15% 闪电伤害，增益持续2秒",
+        "id": "Electric_Overload",
+        "tags": [
+          "辅助",
+          "闪电"
+        ],
+        "main_attribute": null,
+        "mana_cost": null,
+        "multiplier": null,
+        "level_tables": [
+          {
+            "table_type": "skill",
+            "header": [
+              "level",
+              "被辅助技能额外10.25% 闪电伤害"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "value": "41/4"
+              },
+              {
+                "level": "2",
+                "value": "10.5"
+              },
+              {
+                "level": "3",
+                "value": "10.75"
+              },
+              {
+                "level": "4",
+                "value": "11"
+              },
+              {
+                "level": "5",
+                "value": "11.25"
+              },
+              {
+                "level": "6",
+                "value": "11.5"
+              },
+              {
+                "level": "7",
+                "value": "11.75"
+              },
+              {
+                "level": "8",
+                "value": "12"
+              },
+              {
+                "level": "9",
+                "value": "12.25"
+              },
+              {
+                "level": "10",
+                "value": "12.5"
+              },
+              {
+                "level": "11",
+                "value": "12.75"
+              },
+              {
+                "level": "12",
+                "value": "13"
+              },
+              {
+                "level": "13",
+                "value": "13.25"
+              },
+              {
+                "level": "14",
+                "value": "13.5"
+              },
+              {
+                "level": "15",
+                "value": "13.75"
+              },
+              {
+                "level": "16",
+                "value": "14"
+              },
+              {
+                "level": "17",
+                "value": "14.25"
+              },
+              {
+                "level": "18",
+                "value": "14.5"
+              },
+              {
+                "level": "19",
+                "value": "14.75"
+              },
+              {
+                "level": "20",
+                "value": "15"
+              },
+              {
+                "level": "21",
+                "value": "61/4"
+              },
+              {
+                "level": "22",
+                "value": "15.5"
+              },
+              {
+                "level": "23",
+                "value": "15.75"
+              },
+              {
+                "level": "24",
+                "value": "16"
+              },
+              {
+                "level": "25",
+                "value": "16.25"
+              },
+              {
+                "level": "26",
+                "value": "16.5"
+              },
+              {
+                "level": "27",
+                "value": "16.75"
+              },
+              {
+                "level": "28",
+                "value": "17"
+              },
+              {
+                "level": "29",
+                "value": "17.25"
+              },
+              {
+                "level": "30",
+                "value": "17.5"
+              },
+              {
+                "level": "31",
+                "value": "17.75"
+              },
+              {
+                "level": "32",
+                "value": "18"
+              },
+              {
+                "level": "33",
+                "value": "18.25"
+              },
+              {
+                "level": "34",
+                "value": "18.5"
+              },
+              {
+                "level": "35",
+                "value": "18.75"
+              },
+              {
+                "level": "36",
+                "value": "19"
+              },
+              {
+                "level": "37",
+                "value": "19.25"
+              },
+              {
+                "level": "38",
+                "value": "19.5"
+              },
+              {
+                "level": "39",
+                "value": "19.75"
+              },
+              {
+                "level": "40",
+                "value": "20"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "灵能乍泄",
+        "description": "辅助法术技能或可以激活法术迸发的技能。被辅助技能激活法术迸发时，法术迸发释放的技能额外+45%击中伤害 被辅助技能+16% 施法速度",
+        "id": "Psychic_Burst",
+        "tags": [
+          "辅助",
+          "法术"
+        ],
+        "main_attribute": null,
+        "mana_cost": null,
+        "multiplier": null,
+        "level_tables": [
+          {
+            "table_type": "skill",
+            "header": [
+              "level",
+              "被辅助技能激活法术迸发时，法术迸发释放的技能额外+26% 击中伤害"
+            ],
+            "rows": [
+              {
+                "level": "1",
+                "value": "26"
+              },
+              {
+                "level": "2",
+                "value": "27"
+              },
+              {
+                "level": "3",
+                "value": "28"
+              },
+              {
+                "level": "4",
+                "value": "29"
+              },
+              {
+                "level": "5",
+                "value": "30"
+              },
+              {
+                "level": "6",
+                "value": "31"
+              },
+              {
+                "level": "7",
+                "value": "32"
+              },
+              {
+                "level": "8",
+                "value": "33"
+              },
+              {
+                "level": "9",
+                "value": "34"
+              },
+              {
+                "level": "10",
+                "value": "35"
+              },
+              {
+                "level": "11",
+                "value": "36"
+              },
+              {
+                "level": "12",
+                "value": "37"
+              },
+              {
+                "level": "13",
+                "value": "38"
+              },
+              {
+                "level": "14",
+                "value": "39"
+              },
+              {
+                "level": "15",
+                "value": "40"
+              },
+              {
+                "level": "16",
+                "value": "41"
+              },
+              {
+                "level": "17",
+                "value": "42"
+              },
+              {
+                "level": "18",
+                "value": "43"
+              },
+              {
+                "level": "19",
+                "value": "44"
+              },
+              {
+                "level": "20",
+                "value": "45"
+              },
+              {
+                "level": "21",
+                "value": "46"
+              },
+              {
+                "level": "22",
+                "value": "46.5"
+              },
+              {
+                "level": "23",
+                "value": "47"
+              },
+              {
+                "level": "24",
+                "value": "47.5"
+              },
+              {
+                "level": "25",
+                "value": "48"
+              },
+              {
+                "level": "26",
+                "value": "48.5"
+              },
+              {
+                "level": "27",
+                "value": "49"
+              },
+              {
+                "level": "28",
+                "value": "49.5"
+              },
+              {
+                "level": "29",
+                "value": "50"
+              },
+              {
+                "level": "30",
+                "value": "50.5"
+              },
+              {
+                "level": "31",
+                "value": "51"
+              },
+              {
+                "level": "32",
+                "value": "51.5"
+              },
+              {
+                "level": "33",
+                "value": "52"
+              },
+              {
+                "level": "34",
+                "value": "52.5"
+              },
+              {
+                "level": "35",
+                "value": "53"
+              },
+              {
+                "level": "36",
+                "value": "53.5"
+              },
+              {
+                "level": "37",
+                "value": "54"
+              },
+              {
+                "level": "38",
+                "value": "54.5"
+              },
+              {
+                "level": "39",
+                "value": "55"
+              },
+              {
+                "level": "40",
+                "value": "55.5"
+              }
+            ]
+          }
+        ]
+      }
+]

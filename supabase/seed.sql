@@ -653,6 +653,32 @@ INSERT INTO hero_traits (id, display_name, hero_class, trait_type, position, sta
  '{"crit.chance": 0.30, "mod.inc.dmg.projectile": 0.15}',
  '{"Tag_Projectile", "Tag_Ranged"}');
 
+-- 核心天赋：聚能/幸运/伤害分布调整
+INSERT INTO hero_traits (id, display_name, hero_class, trait_type, position, stats, tags, description) VALUES
+('trait_core_cold_hardship', '苦寒', NULL, 'keystone',
+ '{"x": 1, "y": 0}',
+ '{"mechanic.focus_blessing.max_stacks": 1, "mechanic.focus_blessing.on_hit_gain": 1}',
+ '{"Tag_Blessing"}',
+ '击中时获得聚能祝福；聚能祝福上限 +1'),
+
+('trait_core_accumulation', '积聚', NULL, 'keystone',
+ '{"x": 2, "y": 0}',
+ '{"mechanic.focus_blessing.max_stacks": 1, "mod.inc.dmg.spell.per_focus_blessing": 0.03}',
+ '{"Tag_Spell"}',
+ '聚能祝福上限 +1；每层聚能祝福 +3% 法术伤害'),
+
+('trait_core_inconstancy', '世事无常', NULL, 'keystone',
+ '{"x": 3, "y": 0}',
+ '{"mod.more.dmg.phys.min": -0.90, "mod.more.dmg.phys.max": 0.80, "mod.more.dmg.min": -0.40, "mod.more.dmg.max": 0.40}',
+ '{"Tag_Physical"}',
+ '物理最小伤害 -90%，物理最大伤害 +80%；全类型最小伤害 -40%，最大伤害 +40%'),
+
+('trait_core_wonder_angle', '奇妙角度', NULL, 'keystone',
+ '{"x": 4, "y": 0}',
+ '{"flag.lucky": 1}',
+ '{"Tag_Crit"}',
+ '你造成的伤害幸运（两次取高值）');
+
 -- ============================================================
 -- 8. 英雄追忆 Seed (占位)
 -- ============================================================

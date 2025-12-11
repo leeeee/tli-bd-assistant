@@ -113,7 +113,14 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     // 6. Modification (Inc/More) - 按标签应用
     let modified_damages = apply_modifications(&damage_pool, &stat_pool, &context);
     
-    let total_damage: f64 = modified_damages.values().map(|d| d.average()).sum();
+    // Lucky 处理：flag.lucky 或 context_flags.lucky_damage
+    let is_lucky = stat_pool.get_base("flag.lucky") > 0.0
+        || input.context_flags.get("lucky_damage").copied().unwrap_or(false);
+    
+    let total_damage: f64 = modified_damages
+        .values()
+        .map(|d| expected_damage(d.min, d.max, is_lucky))
+        .sum();
     trace.push(TraceEntry {
         phase: "Modification".to_string(),
         description: "Applied Inc/More modifiers".to_string(),
@@ -175,6 +182,7 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
         crit_multiplier,
         hit_chance,
         &input.target_config,
+        is_lucky,
     );
 
     Ok(CalculatorOutput {
@@ -514,12 +522,26 @@ fn apply_modifications(
         // 应用 Inc
         let inc_multiplier = 1.0 + total_inc;
         
-        // 收集 More 修正
-        let more_multiplier = stat_pool.get_more_multiplier("dmg.all");
+        // 收集 More 修正（支持按类型/全局/最小值/最大值拆分）
+        let more_all = stat_pool.get_more_multiplier("dmg.all");
+        let more_type = match dtype {
+            DamageType::Physical => stat_pool.get_more_multiplier("dmg.phys"),
+            DamageType::Fire => stat_pool.get_more_multiplier("dmg.fire"),
+            DamageType::Cold => stat_pool.get_more_multiplier("dmg.cold"),
+            DamageType::Lightning => stat_pool.get_more_multiplier("dmg.lightning"),
+            DamageType::Chaos => stat_pool.get_more_multiplier("dmg.chaos"),
+        };
+        let more_min_generic = stat_pool.get_more_multiplier("dmg.min");
+        let more_max_generic = stat_pool.get_more_multiplier("dmg.max");
+        let more_min_type = stat_pool.get_more_multiplier(&format!("dmg.{}.min", dtype.as_key()));
+        let more_max_type = stat_pool.get_more_multiplier(&format!("dmg.{}.max", dtype.as_key()));
+        
+        let more_multiplier_min = more_all * more_type * more_min_generic * more_min_type;
+        let more_multiplier_max = more_all * more_type * more_max_generic * more_max_type;
         
         // 应用所有修正
-        modified.min *= inc_multiplier * more_multiplier;
-        modified.max *= inc_multiplier * more_multiplier;
+        modified.min *= inc_multiplier * more_multiplier_min;
+        modified.max *= inc_multiplier * more_multiplier_max;
         
         result.insert(*dtype, modified);
     }
@@ -592,6 +614,17 @@ fn calculate_crit(pool: &StatPool, context_flags: &HashMap<String, bool>) -> (f6
 fn calculate_crit_factor(crit_chance: f64, crit_multiplier: f64) -> f64 {
     // 平均伤害 = (1 - crit_chance) * 1.0 + crit_chance * crit_multiplier
     1.0 + crit_chance * (crit_multiplier - 1.0)
+}
+
+/// 计算期望伤害，支持 Lucky 机制
+/// Lucky: 取两次掷骰较高值，等价于区间 [min, max] 的期望从 0.5 提升到 2/3
+fn expected_damage(min: f64, max: f64, is_lucky: bool) -> f64 {
+    if !is_lucky || max <= min {
+        return (min + max) / 2.0;
+    }
+
+    // 期望 = min + (max - min) * 2/3
+    min + (max - min) * (2.0 / 3.0)
 }
 
 /// 9. 计算命中率
@@ -677,16 +710,17 @@ fn build_damage_breakdown(
     crit_multiplier: f64,
     hit_chance: f64,
     target: &TargetConfig,
+    is_lucky: bool,
 ) -> DamageBreakdown {
     let mut by_type = HashMap::new();
     let mut after_conversion = HashMap::new();
 
     for (dtype, dmg) in modified_damages {
-        by_type.insert(dtype.as_key().to_string(), dmg.average());
+        by_type.insert(dtype.as_key().to_string(), expected_damage(dmg.min, dmg.max, is_lucky));
         after_conversion.insert(
             dtype.as_key().to_string(),
             DamageWithHistory {
-                damage: dmg.average(),
+                damage: expected_damage(dmg.min, dmg.max, is_lucky),
                 history_tags: dmg
                     .history_tags
                     .ones()

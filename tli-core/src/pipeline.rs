@@ -165,8 +165,17 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     // 10. EHP Calculation
     let ehp_series = calculate_ehp(&stat_pool);
 
-    // 11. Build damage breakdown
-    let damage_breakdown = build_damage_breakdown(&base_damages, &modified_damages, &stat_pool);
+    // 11. Build damage breakdown (带乘区明细)
+    let damage_breakdown = build_damage_breakdown(
+        &base_damages,
+        &modified_damages,
+        &stat_pool,
+        rate,
+        crit_chance,
+        crit_multiplier,
+        hit_chance,
+        &input.target_config,
+    );
 
     Ok(CalculatorOutput {
         dps_theoretical,
@@ -655,10 +664,19 @@ fn calculate_ehp(pool: &StatPool) -> EhpSeries {
 }
 
 /// 构建伤害明细
+/// 构建伤害分解明细，包含各乘区详情
+/// 
+/// 借鉴 ZSim 的设计，将伤害拆分为独立乘区：
+/// - 基础伤害区、增伤区、More区、暴击区、速度区、命中区、防御区、抗性区、易伤区
 fn build_damage_breakdown(
     base_damages: &HashMap<DamageType, (f64, f64)>,
     modified_damages: &HashMap<DamageType, DamageWithTags>,
     pool: &StatPool,
+    rate: f64,
+    crit_chance: f64,
+    crit_multiplier: f64,
+    hit_chance: f64,
+    target: &TargetConfig,
 ) -> DamageBreakdown {
     let mut by_type = HashMap::new();
     let mut after_conversion = HashMap::new();
@@ -683,12 +701,257 @@ fn build_damage_breakdown(
         .map(|(min, max)| (min + max) / 2.0)
         .sum();
 
+    // 计算各乘区明细
+    let multipliers = build_multiplier_breakdown(
+        base_damage,
+        pool,
+        rate,
+        crit_chance,
+        crit_multiplier,
+        hit_chance,
+        target,
+    );
+
     DamageBreakdown {
         by_type,
         base_damage,
         total_increased: pool.get_increased("dmg.all"),
         total_more: pool.get_more_multiplier("dmg.all"),
         after_conversion,
+        multipliers,
+    }
+}
+
+/// 构建乘区明细
+/// 
+/// 各乘区计算公式：
+/// - 基础伤害区: 技能基础伤害值
+/// - 增伤区: 1 + sum(所有 increased)
+/// - More区: product(所有 more)
+/// - 暴击期望区: 1 + crit_chance * crit_damage
+/// - 速度区: 攻击/施法速率
+/// - 命中区: 命中率
+/// - 防御区: level_constant / (enemy_armor + level_constant)
+/// - 抗性区: 1 - enemy_res + res_reduction + res_penetration
+/// - 易伤区: 1 + enemy_increased_damage_taken
+fn build_multiplier_breakdown(
+    base_damage: f64,
+    pool: &StatPool,
+    rate: f64,
+    crit_chance: f64,
+    crit_multiplier: f64,
+    hit_chance: f64,
+    target: &TargetConfig,
+) -> MultiplierBreakdown {
+    let mut zone_sources: HashMap<String, Vec<ZoneSource>> = HashMap::new();
+
+    // 1. 基础伤害区
+    let base_damage_zone = base_damage;
+    zone_sources.insert("base_damage".to_string(), vec![ZoneSource {
+        source: "技能基础".to_string(),
+        value: base_damage,
+        stat_key: "dmg.base".to_string(),
+    }]);
+
+    // 2. 增伤区 (收集所有 increased 来源)
+    let inc_dmg_all = pool.get_increased("mod.inc.dmg.all");
+    let inc_dmg_phys = pool.get_increased("mod.inc.dmg.phys");
+    let inc_dmg_fire = pool.get_increased("mod.inc.dmg.fire");
+    let inc_dmg_cold = pool.get_increased("mod.inc.dmg.cold");
+    let inc_dmg_lightning = pool.get_increased("mod.inc.dmg.lightning");
+    let inc_dmg_elemental = pool.get_increased("mod.inc.dmg.elemental");
+    let inc_dmg_chaos = pool.get_increased("mod.inc.dmg.chaos");
+    let inc_dmg_spell = pool.get_increased("mod.inc.dmg.spell");
+    let inc_dmg_attack = pool.get_increased("mod.inc.dmg.attack");
+    
+    // 综合增伤区 = 1 + sum(各类增伤)
+    let total_increased = inc_dmg_all + inc_dmg_phys + inc_dmg_fire + inc_dmg_cold 
+        + inc_dmg_lightning + inc_dmg_elemental + inc_dmg_chaos + inc_dmg_spell + inc_dmg_attack;
+    let increased_zone = 1.0 + total_increased;
+    
+    let mut inc_sources = Vec::new();
+    if inc_dmg_all > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "全伤害增加".to_string(),
+            value: inc_dmg_all,
+            stat_key: "mod.inc.dmg.all".to_string(),
+        });
+    }
+    if inc_dmg_phys > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "物理增伤".to_string(),
+            value: inc_dmg_phys,
+            stat_key: "mod.inc.dmg.phys".to_string(),
+        });
+    }
+    if inc_dmg_fire > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "火焰增伤".to_string(),
+            value: inc_dmg_fire,
+            stat_key: "mod.inc.dmg.fire".to_string(),
+        });
+    }
+    if inc_dmg_cold > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "冰冷增伤".to_string(),
+            value: inc_dmg_cold,
+            stat_key: "mod.inc.dmg.cold".to_string(),
+        });
+    }
+    if inc_dmg_lightning > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "闪电增伤".to_string(),
+            value: inc_dmg_lightning,
+            stat_key: "mod.inc.dmg.lightning".to_string(),
+        });
+    }
+    if inc_dmg_elemental > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "元素增伤".to_string(),
+            value: inc_dmg_elemental,
+            stat_key: "mod.inc.dmg.elemental".to_string(),
+        });
+    }
+    if inc_dmg_chaos > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "混沌增伤".to_string(),
+            value: inc_dmg_chaos,
+            stat_key: "mod.inc.dmg.chaos".to_string(),
+        });
+    }
+    if inc_dmg_spell > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "法术增伤".to_string(),
+            value: inc_dmg_spell,
+            stat_key: "mod.inc.dmg.spell".to_string(),
+        });
+    }
+    if inc_dmg_attack > 0.0 {
+        inc_sources.push(ZoneSource {
+            source: "攻击增伤".to_string(),
+            value: inc_dmg_attack,
+            stat_key: "mod.inc.dmg.attack".to_string(),
+        });
+    }
+    zone_sources.insert("increased".to_string(), inc_sources);
+
+    // 3. More 乘区
+    let more_dmg_all = pool.get_more_multiplier("mod.more.dmg.all");
+    let more_dmg_phys = pool.get_more_multiplier("mod.more.dmg.phys");
+    let more_dmg_fire = pool.get_more_multiplier("mod.more.dmg.fire");
+    let more_dmg_cold = pool.get_more_multiplier("mod.more.dmg.cold");
+    let more_dmg_lightning = pool.get_more_multiplier("mod.more.dmg.lightning");
+    let more_dmg_elemental = pool.get_more_multiplier("mod.more.dmg.elemental");
+    let more_dmg_spell = pool.get_more_multiplier("mod.more.dmg.spell");
+    let more_dmg_attack = pool.get_more_multiplier("mod.more.dmg.attack");
+    
+    // More 区 = product(各类 more)
+    let more_zone = more_dmg_all * more_dmg_phys * more_dmg_fire * more_dmg_cold 
+        * more_dmg_lightning * more_dmg_elemental * more_dmg_spell * more_dmg_attack;
+    
+    let mut more_sources = Vec::new();
+    if more_dmg_all != 1.0 {
+        more_sources.push(ZoneSource {
+            source: "全伤害提高".to_string(),
+            value: more_dmg_all,
+            stat_key: "mod.more.dmg.all".to_string(),
+        });
+    }
+    // ... 其他 more 来源同理 (简化)
+    zone_sources.insert("more".to_string(), more_sources);
+
+    // 4. 暴击期望区
+    let effective_crit_chance = crit_chance.min(1.0).max(0.0);
+    let crit_zone = 1.0 + effective_crit_chance * crit_multiplier;
+    zone_sources.insert("crit".to_string(), vec![
+        ZoneSource {
+            source: "暴击率".to_string(),
+            value: crit_chance,
+            stat_key: "crit.chance".to_string(),
+        },
+        ZoneSource {
+            source: "暴击伤害".to_string(),
+            value: crit_multiplier,
+            stat_key: "crit.multiplier".to_string(),
+        },
+    ]);
+
+    // 5. 速度区
+    let speed_zone = rate;
+    zone_sources.insert("speed".to_string(), vec![ZoneSource {
+        source: "攻击/施法速率".to_string(),
+        value: rate,
+        stat_key: "rate".to_string(),
+    }]);
+
+    // 6. 命中区
+    let hit_zone = hit_chance;
+    zone_sources.insert("hit".to_string(), vec![ZoneSource {
+        source: "命中率".to_string(),
+        value: hit_chance,
+        stat_key: "hit.chance".to_string(),
+    }]);
+
+    // 7. 防御区 (敌人护甲)
+    // 公式: level_constant / (enemy_armor + level_constant)
+    let level_constant = 1000.0; // 等级常数，后续可参数化
+    let enemy_armor = target.armor as f64;
+    let defense_zone = if enemy_armor > 0.0 {
+        level_constant / (enemy_armor + level_constant)
+    } else {
+        1.0
+    };
+    zone_sources.insert("defense".to_string(), vec![ZoneSource {
+        source: format!("敌人护甲: {}", enemy_armor),
+        value: defense_zone,
+        stat_key: "target.armor".to_string(),
+    }]);
+
+    // 8. 抗性区
+    // 公式: 1 - enemy_res + res_reduction + res_penetration
+    // 取平均抗性作为示例
+    let avg_resistance = (target.resistances.get("fire").unwrap_or(&0.0)
+        + target.resistances.get("cold").unwrap_or(&0.0)
+        + target.resistances.get("lightning").unwrap_or(&0.0)
+        + target.resistances.get("chaos").unwrap_or(&0.0)) / 4.0;
+    let res_penetration = pool.get_base("mod.penetration.res.all");
+    let resistance_zone = (1.0 - avg_resistance + res_penetration).max(0.0);
+    zone_sources.insert("resistance".to_string(), vec![ZoneSource {
+        source: format!("平均抗性: {:.1}%", avg_resistance * 100.0),
+        value: resistance_zone,
+        stat_key: "target.resistance".to_string(),
+    }]);
+
+    // 9. 易伤区
+    let vulnerability = pool.get_base("target.increased_damage_taken");
+    let vulnerability_zone = 1.0 + vulnerability;
+    zone_sources.insert("vulnerability".to_string(), vec![ZoneSource {
+        source: "敌人受到伤害增加".to_string(),
+        value: vulnerability,
+        stat_key: "target.increased_damage_taken".to_string(),
+    }]);
+
+    // 10. 机制特殊区 (祝福、球类等提供的额外乘区)
+    let mechanics_more = pool.get_base("mechanics.more.dmg");
+    let mechanics_zone = if mechanics_more > 0.0 { 1.0 + mechanics_more } else { 1.0 };
+    zone_sources.insert("mechanics".to_string(), vec![ZoneSource {
+        source: "机制加成".to_string(),
+        value: mechanics_more,
+        stat_key: "mechanics.more.dmg".to_string(),
+    }]);
+
+    MultiplierBreakdown {
+        base_damage_zone,
+        increased_zone,
+        more_zone,
+        crit_zone,
+        speed_zone,
+        hit_zone,
+        defense_zone,
+        resistance_zone,
+        vulnerability_zone,
+        mechanics_zone,
+        zone_sources,
     }
 }
 

@@ -29,6 +29,9 @@ fixedbitset = "0.5"
 # 更好的错误处理
 thiserror = "1.0"
 
+# LRU 缓存 (用于悬停预览性能优化)
+lru = "0.12"
+
 # 控制台错误 hook（用于调试）
 console_error_panic_hook = { version = "0.1.7", optional = true }
 

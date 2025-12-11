@@ -480,6 +480,72 @@ pub struct EhpSeries {
     pub chaos: f64,
 }
 
+/// 伤害乘区明细
+/// 
+/// 借鉴 ZSim 架构，将伤害计算拆分为独立乘区，便于验证和调试
+#[derive(Debug, Clone, Default, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct MultiplierBreakdown {
+    /// 基础伤害区 (技能基础伤害 × 效用)
+    pub base_damage_zone: f64,
+    
+    /// 增伤区 (1 + sum(increased))
+    /// 包含：属性增伤、技能类型增伤、标签增伤、全增伤
+    pub increased_zone: f64,
+    
+    /// More 乘区 (product of more multipliers)
+    /// 各 bucket 的 more 效果相乘
+    pub more_zone: f64,
+    
+    /// 暴击期望区 (1 + crit_chance × crit_damage)
+    pub crit_zone: f64,
+    
+    /// 速度区 (攻击/施法速度)
+    pub speed_zone: f64,
+    
+    /// 命中区 (命中率)
+    pub hit_zone: f64,
+    
+    /// 防御区 (敌人护甲减伤系数)
+    /// 公式: 攻击方等级基数 / (敌人有效防御 + 攻击方等级基数)
+    pub defense_zone: f64,
+    
+    /// 抗性区 (1 - 敌人抗性 + 抗性降低 + 抗性穿透)
+    pub resistance_zone: f64,
+    
+    /// 易伤区 (敌人受到额外伤害)
+    pub vulnerability_zone: f64,
+    
+    /// 机制特殊区 (祝福、球类等机制提供的额外乘区)
+    pub mechanics_zone: f64,
+    
+    /// 各乘区的详细来源追踪
+    #[serde(default)]
+    pub zone_sources: HashMap<String, Vec<ZoneSource>>,
+}
+
+/// 乘区来源详情
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct ZoneSource {
+    /// 来源名称 (装备名、技能名等)
+    pub source: String,
+    /// 贡献值
+    pub value: f64,
+    /// 属性键
+    pub stat_key: String,
+}
+
+impl Default for ZoneSource {
+    fn default() -> Self {
+        Self {
+            source: String::new(),
+            value: 0.0,
+            stat_key: String::new(),
+        }
+    }
+}
+
 /// 伤害构成明细
 #[derive(Debug, Clone, Default, Serialize, Deserialize, TS)]
 #[ts(export, export_to = "../bindings/")]
@@ -498,6 +564,11 @@ pub struct DamageBreakdown {
     
     /// 转化后的伤害分布
     pub after_conversion: HashMap<String, DamageWithHistory>,
+    
+    /// 乘区明细 (新增)
+    /// 提供各计算阶段的详细乘区分解
+    #[serde(default)]
+    pub multipliers: MultiplierBreakdown,
 }
 
 /// 带历史标签的伤害

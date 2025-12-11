@@ -29,6 +29,10 @@ pub struct CacheKey {
     target_hash: u64,
     /// 全局覆盖哈希
     overrides_hash: u64,
+    /// 上下文标志哈希 (如 cannot_crit, is_moving 等)
+    context_flags_hash: u64,
+    /// 上下文数值哈希 (如 enemy_range 等)
+    context_values_hash: u64,
 }
 
 impl CacheKey {
@@ -39,6 +43,8 @@ impl CacheKey {
         let mechanics_hash = Self::hash_mechanics(&input.mechanic_states);
         let target_hash = Self::hash_target(&input.target_config);
         let overrides_hash = Self::hash_overrides(&input.global_overrides);
+        let context_flags_hash = Self::hash_context_flags(&input.context_flags);
+        let context_values_hash = Self::hash_context_values(&input.context_values);
 
         Self {
             items_hash,
@@ -46,6 +52,8 @@ impl CacheKey {
             mechanics_hash,
             target_hash,
             overrides_hash,
+            context_flags_hash,
+            context_values_hash,
         }
     }
 
@@ -73,6 +81,8 @@ impl CacheKey {
             mechanics_hash: Self::hash_mechanics(&input.mechanic_states),
             target_hash: Self::hash_target(&input.target_config),
             overrides_hash: Self::hash_overrides(&input.global_overrides),
+            context_flags_hash: Self::hash_context_flags(&input.context_flags),
+            context_values_hash: Self::hash_context_values(&input.context_values),
         }
     }
 
@@ -148,6 +158,32 @@ impl CacheKey {
         let mut hasher = DefaultHasher::new();
         // 排序以确保一致性
         let mut pairs: Vec<_> = overrides.iter().collect();
+        pairs.sort_by_key(|(k, _)| *k);
+        for (k, v) in pairs {
+            k.hash(&mut hasher);
+            v.to_bits().hash(&mut hasher);
+        }
+        hasher.finish()
+    }
+
+    /// 哈希上下文标志 (如 cannot_crit, is_moving 等)
+    fn hash_context_flags(flags: &std::collections::HashMap<String, bool>) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        // 排序以确保一致性
+        let mut pairs: Vec<_> = flags.iter().collect();
+        pairs.sort_by_key(|(k, _)| *k);
+        for (k, v) in pairs {
+            k.hash(&mut hasher);
+            v.hash(&mut hasher);
+        }
+        hasher.finish()
+    }
+
+    /// 哈希上下文数值 (如 enemy_range 等)
+    fn hash_context_values(values: &std::collections::HashMap<String, f64>) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        // 排序以确保一致性
+        let mut pairs: Vec<_> = values.iter().collect();
         pairs.sort_by_key(|(k, _)| *k);
         for (k, v) in pairs {
             k.hash(&mut hasher);
@@ -397,6 +433,42 @@ mod tests {
     }
 
     #[test]
+    fn test_cache_key_different_context_flags() {
+        let mut calculator = CachedCalculator::new(16);
+        let mut input1 = create_test_input();
+        let mut input2 = create_test_input();
+
+        // 设置不同的 context_flags (如 cannot_crit)
+        input1.context_flags.insert("cannot_crit".to_string(), false);
+        input2.context_flags.insert("cannot_crit".to_string(), true);
+
+        // 不同 context_flags 应该产生不同的缓存键
+        calculator.calculate(&input1).unwrap();
+        calculator.calculate(&input2).unwrap();
+
+        assert_eq!(calculator.cache_misses, 2);
+        assert_eq!(calculator.cache_hits, 0);
+    }
+
+    #[test]
+    fn test_cache_key_different_context_values() {
+        let mut calculator = CachedCalculator::new(16);
+        let mut input1 = create_test_input();
+        let mut input2 = create_test_input();
+
+        // 设置不同的 context_values (如 enemy_range)
+        input1.context_values.insert("enemy_range".to_string(), 10.0);
+        input2.context_values.insert("enemy_range".to_string(), 50.0);
+
+        // 不同 context_values 应该产生不同的缓存键
+        calculator.calculate(&input1).unwrap();
+        calculator.calculate(&input2).unwrap();
+
+        assert_eq!(calculator.cache_misses, 2);
+        assert_eq!(calculator.cache_hits, 0);
+    }
+
+    #[test]
     fn test_calculate_diff() {
         let mut calculator = CachedCalculator::new(16);
         let base_input = create_test_input();
@@ -438,4 +510,3 @@ mod tests {
         assert_eq!(calculator.get_stats().size, 0);
     }
 }
-

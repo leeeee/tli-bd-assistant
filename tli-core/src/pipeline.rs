@@ -861,8 +861,10 @@ fn build_multiplier_breakdown(
     zone_sources.insert("more".to_string(), more_sources);
 
     // 4. 暴击期望区
+    // 公式: 1 + crit_chance * (crit_multiplier - 1)
+    // 注意: crit_multiplier 已包含基础 1.0x，需减去避免重复计算
     let effective_crit_chance = crit_chance.min(1.0).max(0.0);
-    let crit_zone = 1.0 + effective_crit_chance * crit_multiplier;
+    let crit_zone = 1.0 + effective_crit_chance * (crit_multiplier - 1.0);
     zone_sources.insert("crit".to_string(), vec![
         ZoneSource {
             source: "暴击率".to_string(),

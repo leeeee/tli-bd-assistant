@@ -1,0 +1,68 @@
+[
+    {
+        "e_name": "INT_Gloves",
+        "name": "智慧手套-传奇",
+        "title": "伊斯拉菲尔的旧律",
+        "img": "https://cdn.tlidb.com/UI/Textures/Common/Icon/EquipCommon/Gloves/128/Icon_Equip_Gloves_Epic_423_128.webp",
+        "type": "手套",
+        "type2": "unique",
+        "items_meta": "gloves_all_magic_grip",
+        "affix_base_des": [
+          "+(340–408)该装备护盾",
+          "+(20–30)% 祝福持续时间",
+          "每有 1 层聚能祝福，额外+(13–14)% 冰冷伤害",
+          "每有 1 层聚能祝福，+(1–3)% 暴击伤害"
+        ],
+        "id": "equip-legend-116",
+        "affix_corrupted_des": [
+          "+(442–527)该装备护盾",
+          "+(30–40)% 祝福持续时间",
+          "每有 1 层聚能祝福，额外+(18–19)% 冰冷伤害",
+          "每有 1 层聚能祝福，+4% 暴击伤害"
+        ]
+    },
+    {
+        "e_name": "STR_Gloves",
+        "name": "力量手套-传奇",
+        "title": "玛格努斯的旧律",
+        "img": "https://cdn.tlidb.com/UI/Textures/Common/Icon/EquipCommon/Gloves/128/Icon_Equip_Gloves_Epic_421_128.webp",
+        "type": "手套",
+        "type2": "unique",
+        "items_meta": "gloves_old_kings_rerebraces",
+        "affix_base_des": [
+          "+(2880–3456)该装备护甲值",
+          "+(20–30)% 祝福持续时间",
+          "每有 1 层坚韧祝福，额外+(14–15)% 火焰伤害",
+          "每有 1 层坚韧祝福， 攻击和法术附加(7–8)-(9–10)火焰伤害"
+        ],
+        "id": "equip-legend-89",
+        "affix_corrupted_des": [
+          "+(3744–4493)该装备护甲值",
+          "+(30–40)% 祝福持续时间",
+          "每有 1 层坚韧祝福，额外+(19–20)% 火焰伤害",
+          "每有 1 层坚韧祝福， 攻击和法术附加(10–11)-(12–13)火焰伤害"
+        ]
+    },
+    {
+        "e_name": "DEX_Gloves",
+        "name": "敏捷手套-传奇",
+        "title": "趋光之翼",
+        "img": "https://cdn.tlidb.com/UI/Textures/Common/Icon/EquipCommon/Gloves/128/Icon_Equip_Gloves_Epic_415_128.webp",
+        "type": "手套",
+        "type2": "unique",
+        "items_meta": "gloves_hands_of_calamity",
+        "affix_base_des": [
+          "+(25–60)% 暴击伤害",
+          "+(50–150)最大生命",
+          "<随机一条免疫控制词缀>",
+          "震慑获得额外基础效果：每拥有一种控制类状态，额外+(15–22)% 受到的法术和异常伤害，最多 6 层"
+        ],
+        "id": "equip-legend-104",
+        "affix_corrupted_des": [
+          "+(30–80)% 暴击伤害",
+          "+(200–400)最大生命",
+          "<随机一条免疫控制词缀>",
+          "震慑获得额外基础效果：每拥有一种控制类状态，额外+(30–40)% 受到的法术和异常伤害，最多 6 层"
+        ]
+    }
+]

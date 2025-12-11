@@ -69,9 +69,7 @@ INSERT INTO tags_registry (tag_key, category, display_name, parents, description
 
 -- 机制标签
 ('Mech_Blessing', 'Mechanic', '祝福', '{}', '祝福层数机制'),
-('Mech_Charge_Frenzy', 'Mechanic', '狂乱球', '{}', '狂乱球充能'),
-('Mech_Charge_Power', 'Mechanic', '能量球', '{}', '能量球充能'),
-('Mech_Charge_Endurance', 'Mechanic', '耐力球', '{}', '耐力球充能'),
+('Mech_FightingWill', 'Mechanic', '战意', '{}', '战意值机制，每点提供暴击值，受战意效果影响'),
 ('Mech_Rage', 'Mechanic', '怒火', '{}', '怒火值'),
 ('Mech_Fortify', 'Mechanic', '护体', '{}', '护体层数'),
 
@@ -240,6 +238,18 @@ INSERT INTO items_meta (base_type, display_name, slot, is_two_handed, implicit_s
 -- 手套
 ('gloves_armor', '铁手套', 'gloves', FALSE,
  '{"def.armor": 30}',
+ '{"Tag_Armor", "Tag_Gloves"}'),
+
+('gloves_all_magic_grip', '万法之轻握', 'gloves', FALSE,
+ '{"base.es": 120}',
+ '{"Tag_Armor", "Tag_Gloves"}'),
+
+('gloves_old_kings_rerebraces', '旧日王者的护臂', 'gloves', FALSE,
+ '{"def.armor": 1777}',
+ '{"Tag_Armor", "Tag_Gloves"}'),
+
+('gloves_hands_of_calamity', '灾厄之手', 'gloves', FALSE,
+ '{"def.evasion": 1615}',
  '{"Tag_Armor", "Tag_Gloves"}'),
 
 -- 鞋子
@@ -556,7 +566,20 @@ INSERT INTO unique_items (id, display_name, base_type, item_type, slot, level_re
 
 ('unique_chest_life_001', '不屈胸甲', 'chest_armor', 'armor', 'chest', 50,
  '穿戴者的意志永不屈服。',
- '{"Tag_Armor", "Tag_Chest"}');
+ '{"Tag_Armor", "Tag_Chest"}'),
+
+-- 真实传奇手套 (来源: meta-json/gears_unique.json)
+('equip_legend_116', '伊斯拉菲尔的旧律', 'gloves_all_magic_grip', 'armor', 'gloves', 1,
+ NULL,
+ '{"Tag_Armor", "Tag_Gloves", "Tag_Cold"}'),
+
+('equip_legend_89', '玛格努斯的旧律', 'gloves_old_kings_rerebraces', 'armor', 'gloves', 1,
+ NULL,
+ '{"Tag_Armor", "Tag_Gloves", "Tag_Fire"}'),
+
+('equip_legend_104', '趋光之翼', 'gloves_hands_of_calamity', 'armor', 'gloves', 1,
+ NULL,
+ '{"Tag_Armor", "Tag_Gloves", "Tag_Crit"}');
 
 -- 传奇装备词缀
 INSERT INTO unique_affixes (item_id, tier, line_index, variant_type, template_text, min_val, max_val, stats, tags, is_implicit) VALUES
@@ -579,7 +602,37 @@ INSERT INTO unique_affixes (item_id, tier, line_index, variant_type, template_te
 ('unique_chest_life_001', 1, 0, 'base', '增加 {0} 最大生命', 80, 120, '{"base.life": "{0}"}', '{}', TRUE),
 ('unique_chest_life_001', 1, 1, 'base', '增加 {0}% 最大生命', 0.08, 0.12, '{}', '{}', FALSE),
 ('unique_chest_life_001', 1, 2, 'base', '增加 {0}% 全部元素抗性', 0.10, 0.15, '{"res.fire": "{0}", "res.cold": "{0}", "res.lightning": "{0}"}', '{}', FALSE),
-('unique_chest_life_001', 1, 3, 'base', '受到的物理伤害降低 {0}%', 0.05, 0.08, '{}', '{}', FALSE);
+('unique_chest_life_001', 1, 3, 'base', '受到的物理伤害降低 {0}%', 0.05, 0.08, '{}', '{}', FALSE),
+
+-- 伊斯拉菲尔的旧律 (equip_legend_116) - 智慧手套
+('equip_legend_116', 1, 0, 'base', '+{0}该装备护盾', 340, 408, '{"base.es": "{0}"}', '{}', TRUE),
+('equip_legend_116', 1, 1, 'base', '+{0}% 祝福持续时间', 0.20, 0.30, '{"blessing.duration": "{0}"}', '{"Mech_Blessing"}', FALSE),
+('equip_legend_116', 1, 2, 'base', '每有 1 层聚能祝福，额外+{0}% 冰冷伤害', 0.13, 0.14, '{"mod.inc.dmg.cold.per_focus_blessing": "{0}"}', '{"Tag_Cold", "Mech_Blessing"}', FALSE),
+('equip_legend_116', 1, 3, 'base', '每有 1 层聚能祝福，+{0}% 暴击伤害', 0.01, 0.03, '{"crit.dmg.per_focus_blessing": "{0}"}', '{"Tag_Crit", "Mech_Blessing"}', FALSE),
+('equip_legend_116', 1, 0, 'corrupted', '+{0}该装备护盾', 442, 527, '{"base.es": "{0}"}', '{}', TRUE),
+('equip_legend_116', 1, 1, 'corrupted', '+{0}% 祝福持续时间', 0.30, 0.40, '{"blessing.duration": "{0}"}', '{"Mech_Blessing"}', FALSE),
+('equip_legend_116', 1, 2, 'corrupted', '每有 1 层聚能祝福，额外+{0}% 冰冷伤害', 0.18, 0.19, '{"mod.inc.dmg.cold.per_focus_blessing": "{0}"}', '{"Tag_Cold", "Mech_Blessing"}', FALSE),
+('equip_legend_116', 1, 3, 'corrupted', '每有 1 层聚能祝福，+{0}% 暴击伤害', 0.04, 0.04, '{"crit.dmg.per_focus_blessing": "{0}"}', '{"Tag_Crit", "Mech_Blessing"}', FALSE),
+
+-- 玛格努斯的旧律 (equip_legend_89) - 力量手套
+('equip_legend_89', 1, 0, 'base', '+{0}该装备护甲值', 2880, 3456, '{"def.armor": "{0}"}', '{}', TRUE),
+('equip_legend_89', 1, 1, 'base', '+{0}% 祝福持续时间', 0.20, 0.30, '{"blessing.duration": "{0}"}', '{"Mech_Blessing"}', FALSE),
+('equip_legend_89', 1, 2, 'base', '每有 1 层坚韧祝福，额外+{0}% 火焰伤害', 0.14, 0.15, '{"mod.inc.dmg.fire.per_tenacity_blessing": "{0}"}', '{"Tag_Fire", "Mech_Blessing"}', FALSE),
+('equip_legend_89', 1, 3, 'base', '每有 1 层坚韧祝福，攻击和法术附加 {0}-{1} 火焰伤害', 7, 10, '{"dmg.fire.added.min.per_tenacity_blessing": 7, "dmg.fire.added.max.per_tenacity_blessing": 10}', '{"Tag_Fire", "Mech_Blessing"}', FALSE),
+('equip_legend_89', 1, 0, 'corrupted', '+{0}该装备护甲值', 3744, 4493, '{"def.armor": "{0}"}', '{}', TRUE),
+('equip_legend_89', 1, 1, 'corrupted', '+{0}% 祝福持续时间', 0.30, 0.40, '{"blessing.duration": "{0}"}', '{"Mech_Blessing"}', FALSE),
+('equip_legend_89', 1, 2, 'corrupted', '每有 1 层坚韧祝福，额外+{0}% 火焰伤害', 0.19, 0.20, '{"mod.inc.dmg.fire.per_tenacity_blessing": "{0}"}', '{"Tag_Fire", "Mech_Blessing"}', FALSE),
+('equip_legend_89', 1, 3, 'corrupted', '每有 1 层坚韧祝福，攻击和法术附加 {0}-{1} 火焰伤害', 10, 13, '{"dmg.fire.added.min.per_tenacity_blessing": 10, "dmg.fire.added.max.per_tenacity_blessing": 13}', '{"Tag_Fire", "Mech_Blessing"}', FALSE),
+
+-- 趋光之翼 (equip_legend_104) - 敏捷手套
+('equip_legend_104', 1, 0, 'base', '+{0}% 暴击伤害', 0.25, 0.60, '{"crit.dmg": "{0}"}', '{"Tag_Crit"}', TRUE),
+('equip_legend_104', 1, 1, 'base', '+{0} 最大生命', 50, 150, '{"base.life": "{0}"}', '{}', FALSE),
+('equip_legend_104', 1, 2, 'base', '<随机一条免疫控制词缀>', NULL, NULL, '{}', '{"Tag_State_Control_Immune"}', FALSE),
+('equip_legend_104', 1, 3, 'base', '震慑获得额外基础效果：每拥有一种控制类状态，额外+{0}% 受到的法术和异常伤害，最多 6 层', 0.15, 0.22, '{"stun.bonus.dmg_taken_per_control": "{0}", "stun.bonus.max_stacks": 6}', '{}', FALSE),
+('equip_legend_104', 1, 0, 'corrupted', '+{0}% 暴击伤害', 0.30, 0.80, '{"crit.dmg": "{0}"}', '{"Tag_Crit"}', TRUE),
+('equip_legend_104', 1, 1, 'corrupted', '+{0} 最大生命', 200, 400, '{"base.life": "{0}"}', '{}', FALSE),
+('equip_legend_104', 1, 2, 'corrupted', '<随机一条免疫控制词缀>', NULL, NULL, '{}', '{"Tag_State_Control_Immune"}', FALSE),
+('equip_legend_104', 1, 3, 'corrupted', '震慑获得额外基础效果：每拥有一种控制类状态，额外+{0}% 受到的法术和异常伤害，最多 6 层', 0.30, 0.40, '{"stun.bonus.dmg_taken_per_control": "{0}", "stun.bonus.max_stacks": 6}', '{}', FALSE);
 
 -- ============================================================
 -- 7. 英雄特性 Seed (占位)
@@ -634,4 +687,32 @@ INSERT INTO pacts (id, display_name, pact_type, tier, stats, tags) VALUES
 ('pact_life_1', '生命契约', 'defense', 1,
  '{"base.life": 100}',
  '{}');
+
+-- ============================================================
+-- 10. 机制注册表 Seed
+-- ============================================================
+
+-- 三种祝福机制
+INSERT INTO mechanics_registry (id, display_name, category, tag_key, default_stacks, max_stacks, base_effect_per_stack, description) VALUES
+-- 聚能祝福：每层 +4% 伤害
+('focus_blessing', '聚能祝福', 'blessing', 'Mech_Blessing', 0, 4,
+ '{"mod.inc.dmg.all": 0.04}',
+ '聚能祝福可以通过多种手段获得，初始上限为4层，每层提供额外+4%伤害'),
+
+-- 坚韧祝福：每层 -4% 受到的伤害
+('tenacity_blessing', '坚韧祝福', 'blessing', 'Mech_Blessing', 0, 4,
+ '{"def.damage_taken_reduction": 0.04}',
+ '坚韧祝福可以通过多种手段获得，初始上限为4层，每层减少4%受到的伤害'),
+
+-- 灵动祝福：每层 +4% 攻击和施法速度, +2% 伤害
+('agility_blessing', '灵动祝福', 'blessing', 'Mech_Blessing', 0, 4,
+ '{"speed.attack": 0.04, "speed.cast": 0.04, "mod.inc.dmg.all": 0.02}',
+ '灵动祝福可以通过多种手段获得，初始上限为4层，每层提供额外+4%攻击和施法速度，+2%伤害');
+
+-- 战意机制 (Fighting Will)
+INSERT INTO mechanics_registry (id, display_name, category, tag_key, default_stacks, max_stacks, base_effect_per_stack, decay_rule, description) VALUES
+('fighting_will', '战意', 'resource', 'Mech_FightingWill', 0, 100,
+ '{"crit.chance.attack": 0.02, "crit.chance.spell": 0.02}',
+ 'time_based',
+ '战意状态下，击败怪物、击中劲敌时获得1点战意值。每点战意值提供2%攻击和法术暴击值，最多100点。基础持续时间10秒。效果受[战意效果]属性影响。');
 

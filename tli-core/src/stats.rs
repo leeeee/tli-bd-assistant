@@ -2,6 +2,7 @@
 //!
 //! 实现属性聚合、条件解析和修正应用
 
+use crate::mechanics::{is_per_stack_stat, MechanicsProcessor};
 use crate::tags::ContextTags;
 use crate::types::*;
 use std::collections::HashMap;
@@ -153,6 +154,27 @@ pub struct StatAggregator<'a> {
     pool: StatPool,
     context: &'a ContextTags,
     local_pool: StatPool, // 用于武器等局部属性
+    /// 每件装备的局部属性池（用于暗金装备基底+词缀合并计算）
+    item_local_pools: HashMap<String, ItemLocalStats>,
+    /// 机制处理器（用于处理 .per_xxx 属性）
+    mechanics: Option<&'a MechanicsProcessor>,
+}
+
+/// 单件装备的局部属性
+#[derive(Debug, Clone, Default)]
+pub struct ItemLocalStats {
+    /// 基底属性（来自 items_meta）
+    pub base_armor: f64,
+    pub base_es: f64,
+    pub base_evasion: f64,
+    /// 词缀提供的平面属性
+    pub affix_armor: f64,
+    pub affix_es: f64,
+    pub affix_evasion: f64,
+    /// 该装备上的百分比加成
+    pub armor_percent: f64,
+    pub es_percent: f64,
+    pub evasion_percent: f64,
 }
 
 impl<'a> StatAggregator<'a> {
@@ -162,7 +184,25 @@ impl<'a> StatAggregator<'a> {
             pool: StatPool::new(),
             context,
             local_pool: StatPool::new(),
+            item_local_pools: HashMap::new(),
+            mechanics: None,
         }
+    }
+    
+    /// 创建带机制处理器的聚合器
+    pub fn with_mechanics(context: &'a ContextTags, mechanics: &'a MechanicsProcessor) -> Self {
+        Self {
+            pool: StatPool::new(),
+            context,
+            local_pool: StatPool::new(),
+            item_local_pools: HashMap::new(),
+            mechanics: Some(mechanics),
+        }
+    }
+    
+    /// 设置机制处理器
+    pub fn set_mechanics(&mut self, mechanics: &'a MechanicsProcessor) {
+        self.mechanics = Some(mechanics);
     }
 
     /// 聚合装备属性
@@ -174,16 +214,42 @@ impl<'a> StatAggregator<'a> {
 
     /// 聚合单个装备
     fn aggregate_single_item(&mut self, item: &ItemData) {
-        // 1. 处理基底固有属性
+        // 为每件装备创建局部属性池
+        let mut item_local = ItemLocalStats::default();
+        
+        // 1. 处理基底固有属性（来自 items_meta）
+        for (key, value) in &item.base_implicit_stats {
+            match key.as_str() {
+                "def.armor" => item_local.base_armor += *value,
+                "base.es" => item_local.base_es += *value,
+                "def.evasion" => item_local.base_evasion += *value,
+                _ => {
+                    if is_local_stat(key) {
+                        self.local_pool.add_base(key, *value);
+                    } else {
+                        self.pool.add_base(key, *value);
+                    }
+                }
+            }
+        }
+        
+        // 2. 处理暗金/传奇装备的隐性词缀
         for (key, value) in &item.implicit_stats {
-            if is_local_stat(key) {
-                self.local_pool.add_base(key, *value);
-            } else {
-                self.pool.add_base(key, *value);
+            match key.as_str() {
+                "def.armor" => item_local.affix_armor += *value,
+                "base.es" => item_local.affix_es += *value,
+                "def.evasion" => item_local.affix_evasion += *value,
+                _ => {
+                    if is_local_stat(key) {
+                        self.local_pool.add_base(key, *value);
+                    } else {
+                        self.pool.add_base(key, *value);
+                    }
+                }
             }
         }
 
-        // 2. 处理词缀
+        // 3. 处理词缀
         for affix in &item.affixes {
             // 检查词缀条件是否满足
             if !self.check_affix_requirements(affix) {
@@ -191,8 +257,38 @@ impl<'a> StatAggregator<'a> {
             }
 
             for (key, value) in &affix.stats {
+                // 处理该装备的局部百分比加成
+                match key.as_str() {
+                    "mod.inc.def.armor.local" => {
+                        item_local.armor_percent += *value;
+                        continue;
+                    }
+                    "mod.inc.base.es.local" => {
+                        item_local.es_percent += *value;
+                        continue;
+                    }
+                    "mod.inc.def.evasion.local" => {
+                        item_local.evasion_percent += *value;
+                        continue;
+                    }
+                    // 平面局部属性
+                    "def.armor" => {
+                        item_local.affix_armor += *value;
+                        continue;
+                    }
+                    "base.es" => {
+                        item_local.affix_es += *value;
+                        continue;
+                    }
+                    "def.evasion" => {
+                        item_local.affix_evasion += *value;
+                        continue;
+                    }
+                    _ => {}
+                }
+                
                 if affix.is_local || is_local_stat(key) {
-                    // 局部属性
+                    // 其他局部属性（如武器物理伤害）
                     Self::apply_stat_to_pool(&mut self.local_pool, key, *value);
                 } else {
                     // 全局属性
@@ -200,6 +296,9 @@ impl<'a> StatAggregator<'a> {
                 }
             }
         }
+        
+        // 保存该装备的局部属性池
+        self.item_local_pools.insert(item.id.clone(), item_local);
     }
 
     /// 检查词缀条件是否满足
@@ -219,8 +318,21 @@ impl<'a> StatAggregator<'a> {
     }
 
     /// 应用属性到池
+    /// 
+    /// 如果是 .per_xxx 类型的属性，会根据机制层数计算实际值
     fn apply_stat(&mut self, key: &str, value: f64) {
-        Self::apply_stat_to_pool(&mut self.pool, key, value);
+        // 检查是否是 per_xxx 类型的属性
+        if is_per_stack_stat(key) {
+            if let Some(mechanics) = &self.mechanics {
+                if let Some((base_key, total_value)) = mechanics.calculate_per_stack_value(key, value) {
+                    Self::apply_stat_to_pool(&mut self.pool, &base_key, total_value);
+                }
+                // 如果机制未激活或层数为0，跳过该属性
+            }
+            // 如果没有机制处理器，也跳过（无法计算层数）
+        } else {
+            Self::apply_stat_to_pool(&mut self.pool, key, value);
+        }
     }
 
     /// 应用属性到指定池
@@ -234,6 +346,23 @@ impl<'a> StatAggregator<'a> {
         } else {
             pool.add_base(key, value);
         }
+    }
+    
+    /// 应用机制基础效果
+    /// 
+    /// 将所有激活机制的基础效果（每层提供的属性）应用到属性池
+    pub fn apply_mechanic_base_effects(&mut self) {
+        if let Some(mechanics) = &self.mechanics {
+            let effects = mechanics.calculate_base_effects();
+            for (key, value) in effects {
+                Self::apply_stat_to_pool(&mut self.pool, &key, value);
+            }
+        }
+    }
+    
+    /// 获取属性池的可变引用（内部使用）
+    pub fn pool_mut(&mut self) -> &mut StatPool {
+        &mut self.pool
     }
 
     /// 聚合技能属性
@@ -275,9 +404,44 @@ impl<'a> StatAggregator<'a> {
         }
     }
 
-    /// 应用局部属性到武器基础
+    /// 应用局部属性到最终池
+    /// 
+    /// 关键规则：暗金装备 = 基底装备属性 + 暗金词缀属性
+    /// 例如：玛格努斯的旧律的护甲 = 1777（基底）+ 2880~3456（暗金词缀）
+    /// 如果有 "+X% 该装备护甲" 词缀，则：最终护甲 = (基底 + 词缀) * (1 + X%)
     pub fn finalize_local_stats(&mut self) {
-        // 武器物理伤害计算
+        // 1. 计算所有装备的局部防御属性并汇总
+        let mut total_armor: f64 = 0.0;
+        let mut total_es: f64 = 0.0;
+        let mut total_evasion: f64 = 0.0;
+        
+        for (_item_id, local_stats) in &self.item_local_pools {
+            // 合并基底和词缀属性，然后应用百分比加成
+            // final = (base + affix_flat) * (1 + percent)
+            let item_armor = (local_stats.base_armor + local_stats.affix_armor) 
+                * (1.0 + local_stats.armor_percent);
+            let item_es = (local_stats.base_es + local_stats.affix_es) 
+                * (1.0 + local_stats.es_percent);
+            let item_evasion = (local_stats.base_evasion + local_stats.affix_evasion) 
+                * (1.0 + local_stats.evasion_percent);
+            
+            total_armor += item_armor;
+            total_es += item_es;
+            total_evasion += item_evasion;
+        }
+        
+        // 将装备提供的防御值添加到全局池
+        if total_armor > 0.0 {
+            self.pool.add_base("def.armor", total_armor);
+        }
+        if total_es > 0.0 {
+            self.pool.add_base("base.es", total_es);
+        }
+        if total_evasion > 0.0 {
+            self.pool.add_base("def.evasion", total_evasion);
+        }
+        
+        // 2. 武器物理伤害计算
         // final_phys = base_phys * (1 + local_inc)
         let base_phys_min = self.local_pool.get_base("dmg.phys.min");
         let base_phys_max = self.local_pool.get_base("dmg.phys.max");
@@ -290,13 +454,13 @@ impl<'a> StatAggregator<'a> {
             self.pool.set_base("dmg.phys.max", final_phys_max);
         }
 
-        // 武器暴击率
+        // 3. 武器暴击率
         let base_crit = self.local_pool.get_base("crit.chance.local");
         if base_crit > 0.0 {
             self.pool.add_base("crit.chance", base_crit);
         }
 
-        // 武器攻速（局部）
+        // 4. 武器攻速（局部）
         let local_speed = self.local_pool.get_base("speed.attack.local");
         if local_speed > 0.0 {
             self.pool.set_base("weapon.base_speed", local_speed);
@@ -445,6 +609,69 @@ mod tests {
         // 数值条件
         assert!(ConditionParser::evaluate("life_percent <= 0.35", &flags, &values));
         assert!(!ConditionParser::evaluate("life_percent >= 0.5", &flags, &values));
+    }
+    
+    #[test]
+    fn test_unique_item_armor_calculation() {
+        // 测试暗金装备护甲计算
+        // 场景：玛格努斯的旧律
+        // 基底护甲（来自 items_meta）: 1777
+        // 暗金词缀护甲: 3000 (范围 2880-3456 的中间值)
+        // 预期总护甲: 1777 + 3000 = 4777
+        
+        let item_local = ItemLocalStats {
+            base_armor: 1777.0,
+            affix_armor: 3000.0,
+            armor_percent: 0.0,
+            ..Default::default()
+        };
+        
+        let final_armor = (item_local.base_armor + item_local.affix_armor) 
+            * (1.0 + item_local.armor_percent);
+        
+        assert!((final_armor - 4777.0).abs() < 0.01);
+    }
+    
+    #[test]
+    fn test_unique_item_armor_with_percent() {
+        // 测试带百分比加成的暗金装备护甲计算
+        // 基底护甲: 1777
+        // 暗金词缀护甲: 3000
+        // +30% 该装备护甲值词缀
+        // 预期总护甲: (1777 + 3000) * 1.30 = 6210.1
+        
+        let item_local = ItemLocalStats {
+            base_armor: 1777.0,
+            affix_armor: 3000.0,
+            armor_percent: 0.30,
+            ..Default::default()
+        };
+        
+        let final_armor = (item_local.base_armor + item_local.affix_armor) 
+            * (1.0 + item_local.armor_percent);
+        
+        assert!((final_armor - 6210.1).abs() < 0.1);
+    }
+    
+    #[test]
+    fn test_unique_item_es_calculation() {
+        // 测试暗金装备护盾计算
+        // 场景：伊斯拉菲尔的旧律
+        // 基底护盾（来自 items_meta）: 120
+        // 暗金词缀护盾: 370 (范围 340-408 的中间值)
+        // 预期总护盾: 120 + 370 = 490
+        
+        let item_local = ItemLocalStats {
+            base_es: 120.0,
+            affix_es: 370.0,
+            es_percent: 0.0,
+            ..Default::default()
+        };
+        
+        let final_es = (item_local.base_es + item_local.affix_es) 
+            * (1.0 + item_local.es_percent);
+        
+        assert!((final_es - 490.0).abs() < 0.01);
     }
 }
 

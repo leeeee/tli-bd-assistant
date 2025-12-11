@@ -3,6 +3,7 @@
 //! 本模块提供完整的 DPS/EHP 计算管线，包括：
 //! - 标签系统 (UTAS)
 //! - 属性聚合
+//! - 机制系统 (祝福、球类等)
 //! - 伤害转化与标签记忆
 //! - 暴击与减伤计算
 
@@ -11,6 +12,7 @@ use wasm_bindgen::prelude::*;
 pub mod types;
 pub mod tags;
 pub mod stats;
+pub mod mechanics;
 pub mod conversion;
 pub mod pipeline;
 pub mod utils;
@@ -18,6 +20,7 @@ pub mod utils;
 pub use types::*;
 pub use tags::*;
 pub use stats::*;
+pub use mechanics::*;
 pub use conversion::*;
 pub use pipeline::*;
 

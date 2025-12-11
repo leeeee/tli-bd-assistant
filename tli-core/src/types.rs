@@ -43,6 +43,14 @@ pub struct CalculatorInput {
     /// 预览槽位 (用于 Diff 计算)
     #[serde(default)]
     pub preview_slot: Option<PreviewSlot>,
+    
+    /// 机制状态列表 (祝福、球类等)
+    #[serde(default)]
+    pub mechanic_states: Vec<MechanicState>,
+    
+    /// 机制定义（从数据库预加载）
+    #[serde(default)]
+    pub mechanic_definitions: Vec<MechanicDefinition>,
 }
 
 /// 预览槽位
@@ -131,7 +139,7 @@ pub struct ItemData {
     /// 装备唯一 ID
     pub id: String,
     
-    /// 基底类型
+    /// 基底类型（关联 items_meta 表）
     pub base_type: String,
     
     /// 槽位
@@ -141,7 +149,13 @@ pub struct ItemData {
     #[serde(default)]
     pub is_two_handed: bool,
     
-    /// 基底固有属性
+    /// 基底固有属性（来自 items_meta，如护甲基底值 1777）
+    /// 这是装备基底本身的属性，与暗金词缀分开
+    #[serde(default)]
+    pub base_implicit_stats: HashMap<String, f64>,
+    
+    /// 暗金/传奇装备的隐性词缀属性
+    /// 例如暗金装备提供的额外护甲 2880-3456
     #[serde(default)]
     pub implicit_stats: HashMap<String, f64>,
     
@@ -152,6 +166,10 @@ pub struct ItemData {
     /// 装备标签
     #[serde(default)]
     pub tags: Vec<String>,
+    
+    /// 是否为暗金/传奇装备
+    #[serde(default)]
+    pub is_unique: bool,
     
     /// 是否为侵蚀状态
     #[serde(default)]
@@ -317,6 +335,93 @@ pub enum SkillType {
     Active,
     Support,
     Aura,
+}
+
+// ============================================================
+// 机制系统
+// ============================================================
+
+/// 机制状态
+/// 
+/// 表示玩家当前的机制状态（如祝福层数、球类数量等）
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct MechanicState {
+    /// 机制 ID (如 "focus_blessing", "fortify_blessing")
+    pub id: String,
+    
+    /// 当前层数/值
+    #[serde(default)]
+    pub current_stacks: u32,
+    
+    /// 当前上限（可能被装备/天赋修改）
+    #[serde(default = "default_max_stacks")]
+    pub max_stacks: u32,
+    
+    /// 是否激活（满足获取条件）
+    #[serde(default)]
+    pub is_active: bool,
+}
+
+fn default_max_stacks() -> u32 { 4 }
+
+impl Default for MechanicState {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            current_stacks: 0,
+            max_stacks: 4,
+            is_active: false,
+        }
+    }
+}
+
+/// 机制定义
+/// 
+/// 描述一种机制的元数据和基础效果（从数据库加载）
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../bindings/")]
+pub struct MechanicDefinition {
+    /// 机制 ID
+    pub id: String,
+    
+    /// 显示名称
+    pub display_name: String,
+    
+    /// 机制分类 (blessing, charge, resource)
+    #[serde(default)]
+    pub category: String,
+    
+    /// 关联的标签键 (如 "Mech_Blessing")
+    #[serde(default)]
+    pub tag_key: String,
+    
+    /// 默认最大层数
+    #[serde(default = "default_max_stacks")]
+    pub default_max_stacks: u32,
+    
+    /// 每层基础效果
+    /// 如 {"mod.inc.dmg.all": 0.04} 表示每层 +4% 全伤害
+    #[serde(default)]
+    pub base_effect_per_stack: HashMap<String, f64>,
+    
+    /// 描述
+    #[serde(default)]
+    pub description: String,
+}
+
+impl Default for MechanicDefinition {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            display_name: String::new(),
+            category: "blessing".to_string(),
+            tag_key: String::new(),
+            default_max_stacks: 4,
+            base_effect_per_stack: HashMap::new(),
+            description: String::new(),
+        }
+    }
 }
 
 // ============================================================

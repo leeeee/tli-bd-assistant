@@ -134,6 +134,7 @@ CREATE INDEX idx_unique_items_slot ON unique_items(slot);
 CREATE INDEX idx_unique_items_type ON unique_items(item_type);
 
 COMMENT ON TABLE unique_items IS '传奇/暗金装备主表';
+COMMENT ON COLUMN unique_items.base_type IS '关联 items_meta 的基底类型，暗金装备继承基底的所有属性（护甲/护盾/闪避等）';
 COMMENT ON COLUMN unique_items.is_limited IS '限定装备标记，同类限定装备只能装备一件';
 
 -- ============================================================
@@ -157,6 +158,24 @@ CREATE TABLE unique_affixes (
 );
 
 CREATE INDEX idx_unique_affixes_item ON unique_affixes(item_id);
+
+-- ============================================================
+-- 暗金装备属性计算规则说明:
+-- ============================================================
+-- 暗金装备总属性 = 基底属性 (items_meta.implicit_stats) + 暗金词缀属性 (unique_affixes.stats)
+-- 
+-- 示例：玛格努斯的旧律 (equip_legend_89)
+--   base_type: gloves_old_kings_rerebraces
+--   基底护甲 (items_meta): 1777 (固定值)
+--   暗金词缀护甲 (unique_affixes): 2880-3456 (随机范围)
+--   总护甲: 1777 + 随机值 = 4657 ~ 5233
+--
+-- 如果存在 "+X% 该装备护甲/护盾/闪避" 词缀:
+--   最终值 = (基底值 + 词缀平面值) * (1 + X%)
+-- ============================================================
+
+COMMENT ON TABLE unique_affixes IS '传奇/暗金装备词缀表，与 items_meta 的基底属性合并计算';
+COMMENT ON COLUMN unique_affixes.is_implicit IS '是否为暗金固有词缀（与基底属性合并计算护甲/护盾/闪避）';
 CREATE INDEX idx_unique_affixes_variant ON unique_affixes(variant_type);
 CREATE UNIQUE INDEX idx_unique_affixes_order ON unique_affixes(item_id, line_index, variant_type);
 
@@ -366,7 +385,42 @@ COMMENT ON TABLE conversion_rules IS '伤害转化DAG规则表，确保转化顺
 COMMENT ON COLUMN conversion_rules.priority IS '转化优先级，数字越小越先执行';
 
 -- ============================================================
--- 15. 目标配置模板表 (target_configs)
+-- 15. 机制注册表 (mechanics_registry)
+-- 定义所有游戏机制的元数据和基础效果
+-- ============================================================
+CREATE TABLE mechanics_registry (
+    id VARCHAR(64) PRIMARY KEY,                    -- 机制ID，如 'focus_blessing', 'fortify_blessing'
+    display_name VARCHAR(128) NOT NULL,            -- 显示名称，如 '聚能祝福'
+    category VARCHAR(32) NOT NULL,                 -- 机制分类：blessing, charge, resource
+    tag_key VARCHAR(64),                           -- 关联标签，如 'Mech_Blessing'
+    
+    -- 层数/资源配置
+    default_stacks INTEGER DEFAULT 0,              -- 默认层数/值
+    max_stacks INTEGER DEFAULT 4,                  -- 初始上限
+    can_modify_max BOOLEAN DEFAULT TRUE,           -- 是否可以通过装备/天赋修改上限
+    
+    -- 基础效果（每层提供的属性）
+    base_effect_per_stack JSONB NOT NULL DEFAULT '{}',  -- 如 {"mod.inc.dmg.all": 0.04}
+    
+    -- 特殊规则
+    decay_rule VARCHAR(64) DEFAULT 'none',         -- 衰减规则：none, time_based, on_hit
+    decay_rate DECIMAL(10,4) DEFAULT 0,            -- 衰减速率
+    
+    description TEXT,
+    icon VARCHAR(256),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_mechanics_category ON mechanics_registry(category);
+CREATE INDEX idx_mechanics_tag ON mechanics_registry(tag_key);
+
+COMMENT ON TABLE mechanics_registry IS '机制注册表，定义所有游戏机制（祝福、球类、资源等）的元数据和基础效果';
+COMMENT ON COLUMN mechanics_registry.base_effect_per_stack IS '每层机制提供的基础属性，如聚能祝福每层+4%伤害';
+COMMENT ON COLUMN mechanics_registry.category IS '机制分类: blessing(祝福)/charge(球类)/resource(资源)';
+COMMENT ON COLUMN mechanics_registry.tag_key IS '关联的标签键，用于标签系统集成';
+
+-- ============================================================
+-- 16. 目标配置模板表 (target_configs)
 -- 预设的目标配置（用于快速选择）
 -- ============================================================
 CREATE TABLE target_configs (
@@ -411,6 +465,7 @@ ALTER TABLE hero_memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversion_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE target_configs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mechanics_registry ENABLE ROW LEVEL SECURITY;
 
 -- 公开读取策略（所有表允许匿名读取）
 CREATE POLICY "Allow public read" ON tags_registry FOR SELECT USING (true);
@@ -428,4 +483,5 @@ CREATE POLICY "Allow public read" ON hero_memories FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON pacts FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON conversion_rules FOR SELECT USING (true);
 CREATE POLICY "Allow public read" ON target_configs FOR SELECT USING (true);
+CREATE POLICY "Allow public read" ON mechanics_registry FOR SELECT USING (true);
 

@@ -2,17 +2,19 @@
 //!
 //! 实现完整的 DPS/EHP 计算流程：
 //! 1. Sanitization & Slot Conflict
-//! 2. Stat Pool Aggregation
-//! 3. Base Calculation
-//! 4. Extra & Conversion
-//! 5. Modification (Inc/More)
-//! 6. Speed Layer
-//! 7. Crit & Luck
-//! 8. Mitigation & Output
+//! 2. Mechanics Processing (祝福、球类等)
+//! 3. Stat Pool Aggregation
+//! 4. Base Calculation
+//! 5. Extra & Conversion
+//! 6. Modification (Inc/More)
+//! 7. Speed Layer
+//! 8. Crit & Luck
+//! 9. Mitigation & Output
 
 use crate::conversion::{
     extract_conversion_rules, extract_extra_as_rules, ConversionEngine, DamageType, DamageWithTags,
 };
+use crate::mechanics::MechanicsProcessor;
 use crate::stats::{StatAggregator, StatPool};
 use crate::tags::{ContextTags, TagRegistry};
 use crate::types::*;
@@ -53,13 +55,41 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
         context.inject_support_tags(&support.injected_tags);
     }
     context.inject_context_flags(&input.context_flags);
+    
+    // 2.5 初始化机制处理器（祝福、球类等）
+    let mechanics = MechanicsProcessor::new(
+        input.mechanic_definitions.clone(),
+        input.mechanic_states.clone(),
+    );
+    
+    // 记录机制状态到 trace
+    if !input.mechanic_states.is_empty() {
+        let active_mechanics: Vec<String> = input.mechanic_states
+            .iter()
+            .filter(|s| s.is_active && s.current_stacks > 0)
+            .map(|s| format!("{}({}层)", s.id, s.current_stacks))
+            .collect();
+        
+        if !active_mechanics.is_empty() {
+            trace.push(TraceEntry {
+                phase: "Mechanics".to_string(),
+                description: format!("激活机制: {}", active_mechanics.join(", ")),
+                values: mechanics.get_all_stacks(),
+                matched_tags: vec![],
+            });
+        }
+    }
 
-    // 3. Stat Pool Aggregation
-    let mut aggregator = StatAggregator::new(&context);
+    // 3. Stat Pool Aggregation（带机制处理器）
+    let mut aggregator = StatAggregator::with_mechanics(&context, &mechanics);
     aggregator.aggregate_items(&sanitized_items);
     aggregator.aggregate_skill(&input.active_skill);
     aggregator.aggregate_support_skills(&input.support_skills);
     aggregator.aggregate_overrides(&input.global_overrides);
+    
+    // 3.5 应用机制基础效果（如聚能祝福每层+4%伤害）
+    aggregator.apply_mechanic_base_effects();
+    
     let stat_pool = aggregator.finalize();
 
     // 4. Base Calculation
@@ -698,6 +728,8 @@ mod tests {
             support_skills: vec![],
             global_overrides: HashMap::new(),
             preview_slot: None,
+            mechanic_states: vec![],
+            mechanic_definitions: vec![],
         }
     }
 
@@ -740,6 +772,7 @@ mod tests {
             base_type: "sword".to_string(),
             slot: SlotType::WeaponMain,
             is_two_handed: false,
+            base_implicit_stats: HashMap::new(), // 武器基底属性（无）
             implicit_stats: [
                 ("dmg.phys.min".to_string(), 50.0),
                 ("dmg.phys.max".to_string(), 100.0),
@@ -748,6 +781,7 @@ mod tests {
             .collect(),
             affixes: vec![],
             tags: vec![],
+            is_unique: false,
             is_corrupted: false,
         });
 

@@ -2,4 +2,4 @@
 import type { AffixData } from "./AffixData";
 import type { SlotType } from "./SlotType";
 
-export interface ItemData { id: string, base_type: string, slot: SlotType, is_two_handed: boolean, implicit_stats: Record<string, number>, affixes: Array<AffixData>, tags: Array<string>, is_corrupted: boolean, }
+export interface ItemData { id: string, base_type: string, slot: SlotType, is_two_handed: boolean, base_implicit_stats: Record<string, number>, implicit_stats: Record<string, number>, affixes: Array<AffixData>, tags: Array<string>, is_unique: boolean, is_corrupted: boolean, }

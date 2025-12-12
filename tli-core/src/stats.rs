@@ -227,7 +227,8 @@ impl<'a> StatAggregator<'a> {
                     if is_local_stat(key) {
                         self.local_pool.add_base(key, *value);
                     } else {
-                        self.pool.add_base(key, *value);
+                        // 通过 apply_stat 支持 per_xxx 机制解析
+                        self.apply_stat(key, *value);
                     }
                 }
             }
@@ -243,7 +244,8 @@ impl<'a> StatAggregator<'a> {
                     if is_local_stat(key) {
                         self.local_pool.add_base(key, *value);
                     } else {
-                        self.pool.add_base(key, *value);
+                        // 通过 apply_stat 支持 per_xxx 机制解析
+                        self.apply_stat(key, *value);
                     }
                 }
             }
@@ -343,6 +345,12 @@ impl<'a> StatAggregator<'a> {
         } else if key.starts_with("mod.more.") {
             // More 修正默认使用 bucket 0
             pool.add_more(&key.replace("mod.more.", ""), value, 0, "item");
+        } else if key.starts_with("speed.") {
+            // 速度类统一视为 Increased
+            pool.add_increased(key, value);
+        } else if key.starts_with("crit.dmg") {
+            // 暴击伤害类统一视为 Increased
+            pool.add_increased("crit.dmg", value);
         } else {
             pool.add_base(key, value);
         }

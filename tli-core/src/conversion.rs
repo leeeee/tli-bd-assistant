@@ -351,6 +351,7 @@ pub fn extract_extra_as_rules(pool: &StatPool) -> Vec<ExtraAsRule> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::stats::StatPool;
 
     fn create_test_registry() -> TagRegistry {
         let mut registry = TagRegistry::new();
@@ -455,6 +456,34 @@ mod tests {
         
         // 验证标签保留
         assert!(fire.history_tags.contains(10)); // Physical 标签被保留
+    }
+
+    #[test]
+    fn test_lightning_to_cold_full_conversion() {
+        let registry = create_test_registry();
+        let engine = ConversionEngine::new(64);
+
+        let mut base = HashMap::new();
+        base.insert(DamageType::Lightning, (50.0, 150.0));
+
+        let mut pool = StatPool::new();
+        pool.add_base("conv.lightning_to_cold", 1.0);
+        let conv_rules = extract_conversion_rules(&pool);
+        let extra_rules = extract_extra_as_rules(&pool);
+
+        let result = engine.process(&base, &extra_rules, &conv_rules, &registry);
+
+        let lightning = result.get(&DamageType::Lightning).unwrap();
+        assert!((lightning.min + lightning.max).abs() < 1e-6);
+
+        let cold = result.get(&DamageType::Cold).unwrap();
+        let total = cold.min + cold.max;
+        assert!((total - (50.0 + 150.0)).abs() < 1e-6);
+
+        let tag_light = registry.get_id("Tag_Lightning").unwrap();
+        let tag_cold = registry.get_id("Tag_Cold").unwrap();
+        assert!(cold.history_tags.contains(tag_light as usize));
+        assert!(cold.history_tags.contains(tag_cold as usize));
     }
 }
 

@@ -429,18 +429,31 @@ fn calculate_base_damage(
         }
     }
 
-    // 应用 Damage Effectiveness
-    for (_, (min, max)) in base.iter_mut() {
-        *min *= effectiveness;
-        *max *= effectiveness;
-    }
-    
     // 应用等级缩放乘数 (21级及以上的 More 乘数)
     if level_multiplier > 1.0 {
         for (_, (min, max)) in base.iter_mut() {
             *min *= level_multiplier;
             *max *= level_multiplier;
         }
+    }
+
+    // 将“世事无常”一类的最小/最大伤害拉伸提前到点伤阶段
+    // 仅作用于已有的 min/max 基础伤害桶，后续 Inc/More 不再二次放大这些拉伸
+    let stretch_min_global = pool.get_more_multiplier("dmg.min");
+    let stretch_max_global = pool.get_more_multiplier("dmg.max");
+    let stretch_min_phys = pool.get_more_multiplier("dmg.phys.min");
+    let stretch_max_phys = pool.get_more_multiplier("dmg.phys.max");
+
+    for (dtype, (min, max)) in base.iter_mut() {
+        let (smin, smax) = match dtype {
+            DamageType::Physical => (
+                stretch_min_global * stretch_min_phys,
+                stretch_max_global * stretch_max_phys,
+            ),
+            _ => (stretch_min_global, stretch_max_global),
+        };
+        *min *= smin;
+        *max *= smax;
     }
 
     base
@@ -522,7 +535,7 @@ fn apply_modifications(
         // 应用 Inc
         let inc_multiplier = 1.0 + total_inc;
         
-        // 收集 More 修正（支持按类型/全局/最小值/最大值拆分）
+        // 收集 More 修正（支持按类型/全局/最小值/最大值拆分，并按历史标签叠加）
         let more_all = stat_pool.get_more_multiplier("dmg.all");
         let more_type = match dtype {
             DamageType::Physical => stat_pool.get_more_multiplier("dmg.phys"),
@@ -531,13 +544,59 @@ fn apply_modifications(
             DamageType::Lightning => stat_pool.get_more_multiplier("dmg.lightning"),
             DamageType::Chaos => stat_pool.get_more_multiplier("dmg.chaos"),
         };
-        let more_min_generic = stat_pool.get_more_multiplier("dmg.min");
-        let more_max_generic = stat_pool.get_more_multiplier("dmg.max");
-        let more_min_type = stat_pool.get_more_multiplier(&format!("dmg.{}.min", dtype.as_key()));
-        let more_max_type = stat_pool.get_more_multiplier(&format!("dmg.{}.max", dtype.as_key()));
+        // 法术专属 more（积聚等效果）：作为独立乘区参与
+        let more_spell = if context.active_set().contains(registry.get_id("Tag_Spell").unwrap_or(0)) {
+            stat_pool.get_more_multiplier("dmg.spell")
+        } else {
+            1.0
+        };
+        // 基于历史标签的 more（转化后仍享受源类型 more），避免与当前类型重复叠乘
+        let mut more_history = 1.0;
+        let current_tag = match dtype {
+            DamageType::Physical => registry.get_id("Tag_Physical"),
+            DamageType::Fire => registry.get_id("Tag_Fire"),
+            DamageType::Cold => registry.get_id("Tag_Cold"),
+            DamageType::Lightning => registry.get_id("Tag_Lightning"),
+            DamageType::Chaos => registry.get_id("Tag_Chaos"),
+        };
+        let apply_history = |hist: &fixedbitset::FixedBitSet, tag_id: Option<u32>, key: &str, acc: &mut f64| {
+            if let Some(id) = tag_id {
+                if hist.contains(id as usize) {
+                    *acc *= stat_pool.get_more_multiplier(key);
+                }
+            }
+        };
+        // 仅当历史标签与当前类型不同才叠乘
+        let hist = &dmg.history_tags;
+        if current_tag != registry.get_id("Tag_Lightning") {
+            apply_history(hist, registry.get_id("Tag_Lightning"), "dmg.lightning", &mut more_history);
+        }
+        if current_tag != registry.get_id("Tag_Cold") {
+            apply_history(hist, registry.get_id("Tag_Cold"), "dmg.cold", &mut more_history);
+        }
+        if current_tag != registry.get_id("Tag_Fire") {
+            apply_history(hist, registry.get_id("Tag_Fire"), "dmg.fire", &mut more_history);
+        }
+        if current_tag != registry.get_id("Tag_Physical") {
+            apply_history(hist, registry.get_id("Tag_Physical"), "dmg.phys", &mut more_history);
+        }
+        if current_tag != registry.get_id("Tag_Chaos") {
+            apply_history(hist, registry.get_id("Tag_Chaos"), "dmg.chaos", &mut more_history);
+        }
+        // 最小/最大拉伸已在基础伤害阶段应用，这里置为 1 以避免重复放大
+        let more_min_generic = 1.0;
+        let more_max_generic = 1.0;
+        let more_min_type = match dtype {
+            DamageType::Physical => 1.0,
+            _ => stat_pool.get_more_multiplier(&format!("dmg.{}.min", dtype.as_key())),
+        };
+        let more_max_type = match dtype {
+            DamageType::Physical => 1.0,
+            _ => stat_pool.get_more_multiplier(&format!("dmg.{}.max", dtype.as_key())),
+        };
         
-        let more_multiplier_min = more_all * more_type * more_min_generic * more_min_type;
-        let more_multiplier_max = more_all * more_type * more_max_generic * more_max_type;
+        let more_multiplier_min = more_all * more_type * more_spell * more_history * more_min_generic * more_min_type;
+        let more_multiplier_max = more_all * more_type * more_spell * more_history * more_max_generic * more_max_type;
         
         // 应用所有修正
         modified.min *= inc_multiplier * more_multiplier_min;
@@ -995,6 +1054,7 @@ fn build_multiplier_breakdown(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::MechanicDefinition;
 
     fn create_test_input() -> CalculatorInput {
         CalculatorInput {
@@ -1100,5 +1160,159 @@ mod tests {
         // 检查伤害构成
         assert!(result.damage_breakdown.by_type.contains_key("physical"));
         assert!(result.damage_breakdown.by_type.contains_key("fire"));
+    }
+
+    #[test]
+    fn test_chain_lightning_with_supports_and_blessings() {
+        // 战意 100 层，聚能祝福 6 层，侵蚀版旧律最大值
+        let input = CalculatorInput {
+            context_flags: HashMap::from([
+                ("lucky_damage".to_string(), false),
+                ("cannot_crit".to_string(), false),
+            ]),
+            context_values: HashMap::new(),
+            target_config: TargetConfig::default(),
+            items: vec![ItemData {
+                id: "equip_legend_116".to_string(),
+                base_type: "gloves_all_magic_grip".to_string(),
+                slot: SlotType::Gloves,
+                is_two_handed: false,
+                base_implicit_stats: HashMap::from([("base.es".to_string(), 527.0)]),
+                implicit_stats: HashMap::from([
+                    ("mod.more.dmg.cold.per_focus_blessing".to_string(), 0.19),
+                    ("mod.inc.crit.dmg.per_focus_blessing".to_string(), 0.04),
+                    ("blessing.duration".to_string(), 0.40),
+                ]),
+                affixes: vec![],
+                tags: vec!["Tag_Armor".to_string(), "Tag_Gloves".to_string(), "Tag_Cold".to_string()],
+                is_unique: true,
+                is_corrupted: true,
+            }],
+            active_skill: SkillData {
+                id: "skill_chain_lightning".to_string(),
+                skill_type: SkillType::Active,
+                damage_type: Some("lightning".to_string()),
+                is_attack: false,
+                level: 21,
+                base_damage: HashMap::from([
+                    ("dmg.lightning.min".to_string(), 95.0),
+                    ("dmg.lightning.max".to_string(), 1811.0),
+                ]),
+                base_time: 0.65,
+                cooldown: None,
+                mana_cost: 8,
+                effectiveness: 1.0, // 避免重复乘效用
+                tags: vec![
+                    "Tag_Spell".to_string(),
+                    "Tag_Lightning".to_string(),
+                    "Tag_Chain".to_string(),
+                    "Tag_Burst".to_string(),
+                ],
+                stats: HashMap::new(),
+                injected_tags: vec![],
+                mana_multiplier: 1.0,
+                level_data: None,
+                scaling_rules: vec![
+                    SkillScalingRule { level_start: 21, level_end: Some(30), multiplier_per_level: 1.10 },
+                    SkillScalingRule { level_start: 31, level_end: None, multiplier_per_level: 1.08 },
+                ],
+            },
+            support_skills: vec![
+                SkillData {
+                    id: "support_lightning_to_cold".to_string(),
+                    skill_type: SkillType::Support,
+                    damage_type: None,
+                    is_attack: false,
+                    level: 20,
+                    base_damage: HashMap::new(),
+                    base_time: 0.0,
+                    cooldown: None,
+                    mana_cost: 0,
+                    effectiveness: 1.0,
+                    tags: vec!["Tag_Support".to_string(), "Tag_Lightning".to_string(), "Tag_Cold".to_string()],
+                    stats: HashMap::from([
+                        ("conv.lightning_to_cold".to_string(), 1.0),
+                        ("mod.more.dmg.lightning".to_string(), 0.25),
+                    ]),
+                    injected_tags: vec![],
+                    mana_multiplier: 1.0,
+                    level_data: None,
+                    scaling_rules: vec![],
+                },
+                SkillData {
+                    id: "support_psychic_burst".to_string(),
+                    skill_type: SkillType::Support,
+                    damage_type: None,
+                    is_attack: false,
+                    level: 20,
+                    base_damage: HashMap::new(),
+                    base_time: 0.0,
+                    cooldown: None,
+                    mana_cost: 0,
+                    effectiveness: 1.0,
+                    tags: vec!["Tag_Support".to_string(), "Tag_Spell".to_string()],
+                    stats: HashMap::from([
+                        ("mod.more.dmg.all".to_string(), 0.45),
+                        ("speed.cast".to_string(), 0.16),
+                    ]),
+                    injected_tags: vec![],
+                    mana_multiplier: 1.0,
+                    level_data: None,
+                    scaling_rules: vec![],
+                },
+            ],
+            global_overrides: HashMap::from([
+                // 战意换算后的基础暴击率示例
+                ("crit.chance".to_string(), 0.10),
+                // 世事无常：拉伸最小/最大伤害范围（全局 + 物理）
+                ("mod.more.dmg.phys.min".to_string(), -0.90),
+                ("mod.more.dmg.phys.max".to_string(), 0.80),
+                ("mod.more.dmg.min".to_string(), -0.40),
+                ("mod.more.dmg.max".to_string(), 0.40),
+            ]),
+            preview_slot: None,
+            mechanic_states: vec![
+                MechanicState { id: "focus_blessing".to_string(), current_stacks: 6, max_stacks: 6, is_active: true },
+                MechanicState { id: "fighting_will".to_string(), current_stacks: 100, max_stacks: 100, is_active: true },
+            ],
+            mechanic_definitions: vec![
+                MechanicDefinition {
+                    id: "focus_blessing".to_string(),
+                    display_name: "聚能祝福".to_string(),
+                    category: "blessing".to_string(),
+                    tag_key: "Mech_Blessing".to_string(),
+                    default_max_stacks: 6,
+                    base_effect_per_stack: HashMap::from([
+                        ("mod.more.dmg.all".to_string(), 0.04),
+                        ("mod.more.dmg.spell".to_string(), 0.03),
+                    ]),
+                    description: "聚能祝福每层提供额外伤害".to_string(),
+                },
+                MechanicDefinition {
+                    id: "fighting_will".to_string(),
+                    display_name: "战意".to_string(),
+                    category: "resource".to_string(),
+                    tag_key: "Mech_FightingWill".to_string(),
+                    default_max_stacks: 100,
+                    base_effect_per_stack: HashMap::from([
+                        ("crit.chance.rating".to_string(), 2.0),
+                    ]),
+                    description: "战意每层提供 2 点暴击值".to_string(),
+                },
+            ],
+        };
+
+        let result = calculate_dps(&input).expect("calc ok");
+        println!(
+            "dps_theoretical={:.2}, hit_damage={:.2}, rate={:.2}, crit={:.2}%/{:.2}x",
+            result.dps_theoretical,
+            result.hit_damage,
+            result.rate,
+            result.crit_chance * 100.0,
+            result.crit_multiplier
+        );
+
+        assert!(result.dps_theoretical > 0.0);
+        assert!(result.hit_damage > 0.0);
     }
 }

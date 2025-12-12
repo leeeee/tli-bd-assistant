@@ -184,8 +184,13 @@ mod tests {
                 tag_key: "Mech_Blessing".to_string(),
                 default_max_stacks: 4,
                 base_effect_per_stack: [
-                    ("mod.inc.dmg.all".to_string(), 0.04),
-                ].into_iter().collect(),
+                    // 苦寒：每层额外 +4% 全伤
+                    ("mod.more.dmg.all".to_string(), 0.04),
+                    // 积聚：每层额外 +3% 法术伤害
+                    ("mod.more.dmg.spell".to_string(), 0.03),
+                ]
+                .into_iter()
+                .collect(),
                 description: String::new(),
             },
             MechanicDefinition {
@@ -229,7 +234,7 @@ mod tests {
 
     #[test]
     fn test_focus_blessing_base_effect() {
-        // 聚能祝福 4 层：每层 +4% 伤害 = 总计 +16%
+        // 聚能祝福 4 层：每层 +4% 伤害 (More) +3% 法术伤害 (More)
         let definitions = create_test_definitions();
         let states = vec![
             MechanicState {
@@ -243,7 +248,10 @@ mod tests {
         let processor = MechanicsProcessor::new(definitions, states);
         let effects = processor.calculate_base_effects();
 
-        assert!((effects.get("mod.inc.dmg.all").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
+        // More 全伤 4 层 × 4% = 16%
+        assert!((effects.get("mod.more.dmg.all").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
+        // More 法术 4 层 × 3% = 12%
+        assert!((effects.get("mod.more.dmg.spell").copied().unwrap_or(0.0) - 0.12).abs() < 0.001);
     }
 
     #[test]
@@ -395,6 +403,54 @@ mod tests {
     }
 
     #[test]
+    fn test_per_stack_more_cold() {
+        // 侵蚀旧律：每层聚能祝福 +19% 冰冷伤害（More），6 层 → 1.14 more
+        let states = vec![
+            MechanicState {
+                id: "focus_blessing".to_string(),
+                current_stacks: 6,
+                max_stacks: 6,
+                is_active: true,
+            },
+        ];
+        let processor = MechanicsProcessor::new(create_test_definitions(), states);
+
+        let result = processor.calculate_per_stack_value(
+            "mod.more.dmg.cold.per_focus_blessing",
+            0.19,
+        );
+
+        assert!(result.is_some());
+        let (base_key, total_value) = result.unwrap();
+        assert_eq!(base_key, "mod.more.dmg.cold");
+        assert!((total_value - 1.14).abs() < 0.001); // 6 层 × 19% = 114%
+    }
+
+    #[test]
+    fn test_per_stack_inc_crit_dmg() {
+        // 旧律：每层聚能祝福 +4% 暴击伤害（Inc），6 层 → 24% Inc
+        let states = vec![
+            MechanicState {
+                id: "focus_blessing".to_string(),
+                current_stacks: 6,
+                max_stacks: 6,
+                is_active: true,
+            },
+        ];
+        let processor = MechanicsProcessor::new(create_test_definitions(), states);
+
+        let result = processor.calculate_per_stack_value(
+            "mod.inc.crit.dmg.per_focus_blessing",
+            0.04,
+        );
+
+        assert!(result.is_some());
+        let (base_key, total_value) = result.unwrap();
+        assert_eq!(base_key, "mod.inc.crit.dmg");
+        assert!((total_value - 0.24).abs() < 0.001); // 6 层 × 4% = 24%
+    }
+
+    #[test]
     fn test_extract_mechanic_id() {
         assert_eq!(
             extract_mechanic_id("mod.inc.dmg.cold.per_focus_blessing"),
@@ -436,8 +492,10 @@ mod tests {
         let processor = MechanicsProcessor::new(definitions, states);
         let effects = processor.calculate_base_effects();
 
-        // 聚能 4层 × 4% + 灵动 4层 × 2% = 16% + 8% = 24%
-        assert!((effects.get("mod.inc.dmg.all").copied().unwrap_or(0.0) - 0.24).abs() < 0.001);
+        // 聚能 4层 × 4% (More) = 16%
+        assert!((effects.get("mod.more.dmg.all").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
+        // 灵动 4层 × 2% Inc = 8%
+        assert!((effects.get("mod.inc.dmg.all").copied().unwrap_or(0.0) - 0.08).abs() < 0.001);
         // 灵动 4层 × 4% = 16%
         assert!((effects.get("speed.attack").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
     }
@@ -464,8 +522,8 @@ mod tests {
         let processor = MechanicsProcessor::new(definitions, states);
         let effects = processor.calculate_base_effects();
 
-        // 聚能 4层 × 4% = 16% 伤害
-        assert!((effects.get("mod.inc.dmg.all").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
+        // 聚能 4层 × 4% (More) = 16% 伤害
+        assert!((effects.get("mod.more.dmg.all").copied().unwrap_or(0.0) - 0.16).abs() < 0.001);
         // 战意 25点 × 2% = 50% 暴击值
         assert!((effects.get("crit.chance.attack").copied().unwrap_or(0.0) - 0.50).abs() < 0.001);
         assert!((effects.get("crit.chance.spell").copied().unwrap_or(0.0) - 0.50).abs() < 0.001);

@@ -1,20 +1,29 @@
 {
   "_meta": {
     "version": "1.0.0",
-    "description": "TLI 标签注册表 - 用于标签整数化与继承展开"
+    "description": "TLI 标签注册表 - 用于WASM整数化映射与继承展开",
+    "categories": {
+      "Identity": "身份标签，用于筛选增伤词缀是否生效",
+      "Mechanic": "机制标签，携带层数、充能等动态资源数值",
+      "Rule": "规则标签，改变计算公式的开关",
+      "State": "状态标签，用于条件增伤判定"
+    }
   },
+
   "Tag_Damage": {
     "id": 1,
     "category": "Identity",
     "parents": [],
     "displayName": "伤害"
   },
+
   "Tag_Physical": {
     "id": 10,
     "category": "Identity",
     "parents": ["Tag_Damage"],
     "displayName": "物理"
   },
+
   "Tag_Elemental": {
     "id": 20,
     "category": "Identity",
@@ -31,7 +40,7 @@
     "id": 22,
     "category": "Identity",
     "parents": ["Tag_Elemental"],
-    "displayName": "冰冷"
+    "displayName": "冰霜"
   },
   "Tag_Lightning": {
     "id": 23,
@@ -39,12 +48,14 @@
     "parents": ["Tag_Elemental"],
     "displayName": "闪电"
   },
+
   "Tag_Chaos": {
     "id": 30,
     "category": "Identity",
     "parents": ["Tag_Damage"],
     "displayName": "混沌"
   },
+
   "Tag_Attack": {
     "id": 100,
     "category": "Identity",
@@ -69,149 +80,547 @@
     "parents": [],
     "displayName": "投射物"
   },
+
   "Tag_Spell": {
     "id": 110,
     "category": "Identity",
     "parents": [],
     "displayName": "法术"
   },
+
   "Tag_AOE": {
     "id": 120,
     "category": "Identity",
     "parents": [],
     "displayName": "范围"
   },
+
   "Tag_DOT": {
     "id": 130,
     "category": "Identity",
-    "parents": ["Tag_Damage"],
+    "parents": [],
     "displayName": "持续伤害"
   },
-  "Tag_Chain": {
-    "id": 140,
-    "category": "Mechanic",
-    "parents": [],
-    "displayName": "连锁"
+  "Tag_Ignite": {
+    "id": 131,
+    "category": "Identity",
+    "parents": ["Tag_DOT", "Tag_Fire"],
+    "displayName": "点燃"
   },
-  "Tag_Burst": {
-    "id": 141,
-    "category": "Mechanic",
-    "parents": [],
-    "displayName": "迸发"
+  "Tag_Bleed": {
+    "id": 132,
+    "category": "Identity",
+    "parents": ["Tag_DOT", "Tag_Physical"],
+    "displayName": "流血"
   },
-  "Tag_Support": {
+  "Tag_Poison": {
+    "id": 133,
+    "category": "Identity",
+    "parents": ["Tag_DOT", "Tag_Chaos"],
+    "displayName": "中毒"
+  },
+  "Tag_Shock": {
+    "id": 134,
+    "category": "Identity",
+    "parents": ["Tag_Lightning"],
+    "displayName": "感电"
+  },
+  "Tag_Chill": {
+    "id": 135,
+    "category": "Identity",
+    "parents": ["Tag_Cold"],
+    "displayName": "冰缓"
+  },
+  "Tag_Freeze": {
+    "id": 136,
+    "category": "Identity",
+    "parents": ["Tag_Cold"],
+    "displayName": "冻结"
+  },
+
+  "Tag_Weapon": {
     "id": 200,
     "category": "Identity",
     "parents": [],
-    "displayName": "辅助"
+    "displayName": "武器"
   },
+  "Tag_Sword": {
+    "id": 201,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "剑"
+  },
+  "Tag_Axe": {
+    "id": 202,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "斧"
+  },
+  "Tag_Mace": {
+    "id": 203,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "锤"
+  },
+  "Tag_Dagger": {
+    "id": 204,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "匕首"
+  },
+  "Tag_Wand": {
+    "id": 205,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "法杖"
+  },
+  "Tag_Staff": {
+    "id": 206,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "长杖"
+  },
+  "Tag_Bow": {
+    "id": 207,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "弓"
+  },
+  "Tag_Crossbow": {
+    "id": 208,
+    "category": "Identity",
+    "parents": ["Tag_Weapon"],
+    "displayName": "弩"
+  },
+  "Tag_Shield": {
+    "id": 209,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "盾牌"
+  },
+  "Tag_Quiver": {
+    "id": 210,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "箭袋"
+  },
+
+  "Tag_OneHanded": {
+    "id": 220,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "单手"
+  },
+  "Tag_TwoHanded": {
+    "id": 221,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "双手"
+  },
+  "Tag_DualWield": {
+    "id": 222,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "双持"
+  },
+
   "Tag_Armor": {
-    "id": 300,
+    "id": 230,
     "category": "Identity",
     "parents": [],
     "displayName": "护甲"
   },
-  "Tag_Gloves": {
-    "id": 301,
-    "category": "Identity",
-    "parents": ["Tag_Armor"],
-    "displayName": "手套"
-  },
   "Tag_Helmet": {
-    "id": 302,
+    "id": 231,
     "category": "Identity",
     "parents": ["Tag_Armor"],
     "displayName": "头盔"
   },
+  "Tag_Chest": {
+    "id": 232,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "胸甲"
+  },
+  "Tag_Gloves": {
+    "id": 233,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "手套"
+  },
   "Tag_Boots": {
+    "id": 234,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "鞋子"
+  },
+
+  "Tag_Accessory": {
+    "id": 240,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "饰品"
+  },
+  "Tag_Amulet": {
+    "id": 241,
+    "category": "Identity",
+    "parents": ["Tag_Accessory"],
+    "displayName": "项链"
+  },
+  "Tag_Ring": {
+    "id": 242,
+    "category": "Identity",
+    "parents": ["Tag_Accessory"],
+    "displayName": "戒指"
+  },
+  "Tag_Belt": {
+    "id": 243,
+    "category": "Identity",
+    "parents": ["Tag_Accessory"],
+    "displayName": "腰带"
+  },
+
+  "Tag_Aura": {
+    "id": 300,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "光环"
+  },
+  "Tag_Minion": {
+    "id": 301,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "召唤物"
+  },
+  "Tag_Totem": {
+    "id": 302,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "图腾"
+  },
+  "Tag_Trap": {
     "id": 303,
     "category": "Identity",
-    "parents": ["Tag_Armor"],
-    "displayName": "靴子"
+    "parents": [],
+    "displayName": "陷阱"
   },
-  "Tag_Body": {
+  "Tag_Brand": {
     "id": 304,
     "category": "Identity",
-    "parents": ["Tag_Armor"],
-    "displayName": "护甲"
+    "parents": [],
+    "displayName": "烙印"
   },
+  "Tag_Channeling": {
+    "id": 305,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "吟唱"
+  },
+  "Tag_Duration": {
+    "id": 306,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "持续时间"
+  },
+
+  "Tag_Crit": {
+    "id": 310,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "暴击"
+  },
+
+  "Tag_Movement": {
+    "id": 320,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "移动"
+  },
+
   "Mech_Blessing": {
-    "id": 400,
-    "category": "Mechanic",
-    "parents": [],
-    "displayName": "祝福"
-  },
-  "Mech_FightingWill": {
-    "id": 401,
-    "category": "Mechanic",
-    "parents": [],
-    "displayName": "战意"
-  },
-  "Tag_State_Moving": {
     "id": 500,
-    "category": "State",
+    "category": "Mechanic",
     "parents": [],
-    "displayName": "移动中"
+    "displayName": "祝福",
+    "params": {
+      "stacks": "number",
+      "max_stacks": "number"
+    }
   },
-  "Tag_State_Stationary": {
+  "Mech_Charge_Frenzy": {
     "id": 501,
-    "category": "State",
+    "category": "Mechanic",
     "parents": [],
-    "displayName": "静止"
+    "displayName": "狂乱球",
+    "params": {
+      "count": "number",
+      "max": 3
+    }
   },
-  "Tag_State_Low_Life": {
+  "Mech_Charge_Power": {
     "id": 502,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "能量球",
+    "params": {
+      "count": "number",
+      "max": 3
+    }
+  },
+  "Mech_Charge_Endurance": {
+    "id": 503,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "耐力球",
+    "params": {
+      "count": "number",
+      "max": 3
+    }
+  },
+  "Mech_Rage": {
+    "id": 504,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "怒火",
+    "params": {
+      "value": "number",
+      "max": 100
+    }
+  },
+  "Mech_Fortify": {
+    "id": 505,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "护体",
+    "params": {
+      "stacks": "number"
+    }
+  },
+  "Mech_EnergyShield": {
+    "id": 506,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "能量护盾",
+    "params": {
+      "current": "number",
+      "max": "number"
+    }
+  },
+
+  "Rule_Conversion": {
+    "id": 600,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "伤害转化"
+  },
+  "Rule_Extra_As": {
+    "id": 601,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "额外获得"
+  },
+  "Rule_Local": {
+    "id": 602,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "局部属性"
+  },
+  "Rule_Global": {
+    "id": 603,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "全局属性"
+  },
+  "Rule_Lucky": {
+    "id": 604,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "幸运"
+  },
+  "Rule_CannotCrit": {
+    "id": 605,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "无法暴击"
+  },
+  "Rule_CannotEvade": {
+    "id": 606,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "无法闪避"
+  },
+  "Rule_CannotBlock": {
+    "id": 607,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "无法格挡"
+  },
+  "Rule_IgnoreResistance": {
+    "id": 608,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "无视抗性"
+  },
+  "Rule_Penetrate": {
+    "id": 609,
+    "category": "Rule",
+    "parents": [],
+    "displayName": "穿透"
+  },
+
+  "Tag_State_Low_Life": {
+    "id": 700,
     "category": "State",
     "parents": [],
-    "displayName": "低血"
+    "displayName": "低血量",
+    "condition": "life_percent <= 0.35"
   },
   "Tag_State_Full_Life": {
-    "id": 503,
+    "id": 701,
     "category": "State",
     "parents": [],
-    "displayName": "满血"
+    "displayName": "满血量",
+    "condition": "life_percent >= 1.0"
+  },
+  "Tag_State_Low_Mana": {
+    "id": 702,
+    "category": "State",
+    "parents": [],
+    "displayName": "低魔力",
+    "condition": "mana_percent <= 0.35"
+  },
+  "Tag_State_Full_Mana": {
+    "id": 703,
+    "category": "State",
+    "parents": [],
+    "displayName": "满魔力",
+    "condition": "mana_percent >= 1.0"
+  },
+  "Tag_State_Moving": {
+    "id": 704,
+    "category": "State",
+    "parents": [],
+    "displayName": "移动中",
+    "condition": "is_moving == true"
+  },
+  "Tag_State_Stationary": {
+    "id": 705,
+    "category": "State",
+    "parents": [],
+    "displayName": "静止",
+    "condition": "is_moving == false"
+  },
+  "Tag_State_Recently_Hit": {
+    "id": 706,
+    "category": "State",
+    "parents": [],
+    "displayName": "近期被击中",
+    "condition": "recently_hit == true"
   },
   "Tag_State_Recently_Crit": {
-    "id": 504,
+    "id": 707,
     "category": "State",
     "parents": [],
-    "displayName": "近期暴击"
+    "displayName": "近期暴击",
+    "condition": "recently_crit == true"
   },
   "Tag_State_Recently_Killed": {
-    "id": 505,
+    "id": 708,
     "category": "State",
     "parents": [],
-    "displayName": "近期击杀"
+    "displayName": "近期击杀",
+    "condition": "recently_killed == true"
   },
+
   "Tag_State_Enemy_Chilled": {
-    "id": 510,
+    "id": 720,
     "category": "State",
     "parents": [],
-    "displayName": "敌人冰缓"
+    "displayName": "敌人被冰缓",
+    "condition": "enemy_chilled == true"
   },
   "Tag_State_Enemy_Frozen": {
-    "id": 511,
+    "id": 721,
     "category": "State",
     "parents": [],
-    "displayName": "敌人冻结"
+    "displayName": "敌人被冻结",
+    "condition": "enemy_frozen == true"
   },
   "Tag_State_Enemy_Shocked": {
-    "id": 512,
+    "id": 722,
     "category": "State",
     "parents": [],
-    "displayName": "敌人感电"
+    "displayName": "敌人被感电",
+    "condition": "enemy_shocked == true"
   },
   "Tag_State_Enemy_Ignited": {
-    "id": 513,
+    "id": 723,
     "category": "State",
     "parents": [],
-    "displayName": "敌人点燃"
+    "displayName": "敌人被点燃",
+    "condition": "enemy_ignited == true"
+  },
+  "Tag_State_Enemy_Bleeding": {
+    "id": 724,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人在流血",
+    "condition": "enemy_bleeding == true"
+  },
+  "Tag_State_Enemy_Poisoned": {
+    "id": 725,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人中毒",
+    "condition": "enemy_poisoned == true"
   },
   "Tag_State_Enemy_Controlled": {
-    "id": 514,
+    "id": 726,
     "category": "State",
     "parents": [],
-    "displayName": "敌人被控"
+    "displayName": "敌人受控制",
+    "condition": "enemy_controlled == true"
+  },
+  "Tag_State_Enemy_Near": {
+    "id": 727,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人在近距离",
+    "condition": "enemy_range == 'near'"
+  },
+  "Tag_State_Enemy_Far": {
+    "id": 728,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人在远距离",
+    "condition": "enemy_range == 'far'"
+  },
+  "Tag_State_Enemy_Rare": {
+    "id": 729,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人是稀有怪",
+    "condition": "enemy_type == 'rare'"
+  },
+  "Tag_State_Enemy_Boss": {
+    "id": 730,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人是Boss",
+    "condition": "enemy_type == 'boss'"
+  },
+
+  "Tag_Burst": {
+    "id": 800,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "爆发"
+  },
+  "Tag_Support": {
+    "id": 801,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "辅助"
   }
 }
 

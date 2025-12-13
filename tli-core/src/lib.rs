@@ -18,6 +18,8 @@ pub mod mechanics;
 pub mod conversion;
 pub mod pipeline;
 pub mod calculator_cache;
+pub mod modifiers;
+pub mod condition_ast;
 pub mod utils;
 
 pub use types::*;
@@ -27,6 +29,8 @@ pub use mechanics::*;
 pub use conversion::*;
 pub use pipeline::*;
 pub use calculator_cache::*;
+pub use modifiers::*;
+pub use condition_ast::*;
 
 // WASM 环境中使用 thread_local 维护全局缓存
 // 注意：WASM 是单线程的，所以这是安全的

@@ -1,0 +1,217 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "description": "TLI 标签注册表 - 用于标签整数化与继承展开"
+  },
+  "Tag_Damage": {
+    "id": 1,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "伤害"
+  },
+  "Tag_Physical": {
+    "id": 10,
+    "category": "Identity",
+    "parents": ["Tag_Damage"],
+    "displayName": "物理"
+  },
+  "Tag_Elemental": {
+    "id": 20,
+    "category": "Identity",
+    "parents": ["Tag_Damage"],
+    "displayName": "元素"
+  },
+  "Tag_Fire": {
+    "id": 21,
+    "category": "Identity",
+    "parents": ["Tag_Elemental"],
+    "displayName": "火焰"
+  },
+  "Tag_Cold": {
+    "id": 22,
+    "category": "Identity",
+    "parents": ["Tag_Elemental"],
+    "displayName": "冰冷"
+  },
+  "Tag_Lightning": {
+    "id": 23,
+    "category": "Identity",
+    "parents": ["Tag_Elemental"],
+    "displayName": "闪电"
+  },
+  "Tag_Chaos": {
+    "id": 30,
+    "category": "Identity",
+    "parents": ["Tag_Damage"],
+    "displayName": "混沌"
+  },
+  "Tag_Attack": {
+    "id": 100,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "攻击"
+  },
+  "Tag_Melee": {
+    "id": 101,
+    "category": "Identity",
+    "parents": ["Tag_Attack"],
+    "displayName": "近战"
+  },
+  "Tag_Ranged": {
+    "id": 102,
+    "category": "Identity",
+    "parents": ["Tag_Attack"],
+    "displayName": "远程"
+  },
+  "Tag_Projectile": {
+    "id": 103,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "投射物"
+  },
+  "Tag_Spell": {
+    "id": 110,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "法术"
+  },
+  "Tag_AOE": {
+    "id": 120,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "范围"
+  },
+  "Tag_DOT": {
+    "id": 130,
+    "category": "Identity",
+    "parents": ["Tag_Damage"],
+    "displayName": "持续伤害"
+  },
+  "Tag_Chain": {
+    "id": 140,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "连锁"
+  },
+  "Tag_Burst": {
+    "id": 141,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "迸发"
+  },
+  "Tag_Support": {
+    "id": 200,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "辅助"
+  },
+  "Tag_Armor": {
+    "id": 300,
+    "category": "Identity",
+    "parents": [],
+    "displayName": "护甲"
+  },
+  "Tag_Gloves": {
+    "id": 301,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "手套"
+  },
+  "Tag_Helmet": {
+    "id": 302,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "头盔"
+  },
+  "Tag_Boots": {
+    "id": 303,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "靴子"
+  },
+  "Tag_Body": {
+    "id": 304,
+    "category": "Identity",
+    "parents": ["Tag_Armor"],
+    "displayName": "护甲"
+  },
+  "Mech_Blessing": {
+    "id": 400,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "祝福"
+  },
+  "Mech_FightingWill": {
+    "id": 401,
+    "category": "Mechanic",
+    "parents": [],
+    "displayName": "战意"
+  },
+  "Tag_State_Moving": {
+    "id": 500,
+    "category": "State",
+    "parents": [],
+    "displayName": "移动中"
+  },
+  "Tag_State_Stationary": {
+    "id": 501,
+    "category": "State",
+    "parents": [],
+    "displayName": "静止"
+  },
+  "Tag_State_Low_Life": {
+    "id": 502,
+    "category": "State",
+    "parents": [],
+    "displayName": "低血"
+  },
+  "Tag_State_Full_Life": {
+    "id": 503,
+    "category": "State",
+    "parents": [],
+    "displayName": "满血"
+  },
+  "Tag_State_Recently_Crit": {
+    "id": 504,
+    "category": "State",
+    "parents": [],
+    "displayName": "近期暴击"
+  },
+  "Tag_State_Recently_Killed": {
+    "id": 505,
+    "category": "State",
+    "parents": [],
+    "displayName": "近期击杀"
+  },
+  "Tag_State_Enemy_Chilled": {
+    "id": 510,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人冰缓"
+  },
+  "Tag_State_Enemy_Frozen": {
+    "id": 511,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人冻结"
+  },
+  "Tag_State_Enemy_Shocked": {
+    "id": 512,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人感电"
+  },
+  "Tag_State_Enemy_Ignited": {
+    "id": 513,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人点燃"
+  },
+  "Tag_State_Enemy_Controlled": {
+    "id": 514,
+    "category": "State",
+    "parents": [],
+    "displayName": "敌人被控"
+  }
+}
+

@@ -1,8 +1,15 @@
 //! 属性池模块
 //!
 //! 实现属性聚合、条件解析和修正应用
+//!
+//! ## 迁移说明
+//!
+//! 本模块正在向 `modifiers::ModDB` 迁移。当前 `StatAggregator` 会同时产出：
+//! - `StatPool`: 旧版属性池（向后兼容）
+//! - `ModDB`: 新版结构化修正存储（用于溯源和条件评估）
 
 use crate::mechanics::{is_per_stack_stat, MechanicsProcessor};
+use crate::modifiers::{ModDB, Modifier, ModifierStore};
 use crate::tags::ContextTags;
 use crate::types::*;
 use std::collections::HashMap;
@@ -150,6 +157,8 @@ impl StatPool {
 }
 
 /// 属性聚合器 - 从各种来源收集属性
+/// 
+/// 同时产出 `StatPool`（向后兼容）和 `ModDB`（新版结构化存储）
 pub struct StatAggregator<'a> {
     pool: StatPool,
     context: &'a ContextTags,
@@ -158,6 +167,8 @@ pub struct StatAggregator<'a> {
     item_local_pools: HashMap<String, ItemLocalStats>,
     /// 机制处理器（用于处理 .per_xxx 属性）
     mechanics: Option<&'a MechanicsProcessor>,
+    /// 结构化修正存储（新版，用于溯源）
+    mod_db: ModDB,
 }
 
 /// 单件装备的局部属性
@@ -186,6 +197,7 @@ impl<'a> StatAggregator<'a> {
             local_pool: StatPool::new(),
             item_local_pools: HashMap::new(),
             mechanics: None,
+            mod_db: ModDB::new(),
         }
     }
     
@@ -197,12 +209,18 @@ impl<'a> StatAggregator<'a> {
             local_pool: StatPool::new(),
             item_local_pools: HashMap::new(),
             mechanics: Some(mechanics),
+            mod_db: ModDB::new(),
         }
     }
     
     /// 设置机制处理器
     pub fn set_mechanics(&mut self, mechanics: &'a MechanicsProcessor) {
         self.mechanics = Some(mechanics);
+    }
+
+    /// 获取 ModDB 引用
+    pub fn mod_db(&self) -> &ModDB {
+        &self.mod_db
     }
 
     /// 聚合装备属性
@@ -213,7 +231,7 @@ impl<'a> StatAggregator<'a> {
     }
 
     /// 聚合单个装备
-    fn aggregate_single_item(&mut self, item: &ItemData) {
+    pub fn aggregate_single_item(&mut self, item: &ItemData) {
         // 为每件装备创建局部属性池
         let mut item_local = ItemLocalStats::default();
         
@@ -228,7 +246,7 @@ impl<'a> StatAggregator<'a> {
                         self.local_pool.add_base(key, *value);
                     } else {
                         // 通过 apply_stat 支持 per_xxx 机制解析
-                        self.apply_stat(key, *value);
+                        self.apply_stat(key, *value, &format!("{}:base", item.id));
                     }
                 }
             }
@@ -245,7 +263,7 @@ impl<'a> StatAggregator<'a> {
                         self.local_pool.add_base(key, *value);
                     } else {
                         // 通过 apply_stat 支持 per_xxx 机制解析
-                        self.apply_stat(key, *value);
+                        self.apply_stat(key, *value, &format!("{}:implicit", item.id));
                     }
                 }
             }
@@ -294,7 +312,7 @@ impl<'a> StatAggregator<'a> {
                     Self::apply_stat_to_pool(&mut self.local_pool, key, *value);
                 } else {
                     // 全局属性
-                    self.apply_stat(key, *value);
+                    self.apply_stat(key, *value, &format!("{}:{}", item.id, affix.id));
                 }
             }
         }
@@ -322,22 +340,24 @@ impl<'a> StatAggregator<'a> {
     /// 应用属性到池
     /// 
     /// 如果是 .per_xxx 类型的属性，会根据机制层数计算实际值
-    fn apply_stat(&mut self, key: &str, value: f64) {
+    fn apply_stat(&mut self, key: &str, value: f64, source: &str) {
         // 检查是否是 per_xxx 类型的属性
         if is_per_stack_stat(key) {
             if let Some(mechanics) = &self.mechanics {
                 if let Some((base_key, total_value)) = mechanics.calculate_per_stack_value(key, value) {
                     Self::apply_stat_to_pool(&mut self.pool, &base_key, total_value);
+                    self.add_to_mod_db(&base_key, total_value, source);
                 }
                 // 如果机制未激活或层数为0，跳过该属性
             }
             // 如果没有机制处理器，也跳过（无法计算层数）
         } else {
             Self::apply_stat_to_pool(&mut self.pool, key, value);
+            self.add_to_mod_db(key, value, source);
         }
     }
 
-    /// 应用属性到指定池
+    /// 应用属性到指定池（静态方法，仅更新 StatPool）
     fn apply_stat_to_pool(pool: &mut StatPool, key: &str, value: f64) {
         // 根据键名前缀判断类型
         if key.starts_with("mod.inc.") {
@@ -355,6 +375,26 @@ impl<'a> StatAggregator<'a> {
             pool.add_base(key, value);
         }
     }
+
+    /// 添加到 ModDB（结构化存储）
+    fn add_to_mod_db(&mut self, key: &str, value: f64, source: &str) {
+        let modifier = if key.starts_with("mod.inc.") {
+            let stripped_key = key.replace("mod.inc.", "");
+            Modifier::inc(&stripped_key, value, source)
+        } else if key.starts_with("mod.more.") {
+            let stripped_key = key.replace("mod.more.", "");
+            Modifier::more(&stripped_key, value, source)
+        } else if key.starts_with("speed.") {
+            // 速度类视为 Inc
+            Modifier::inc(key, value, source)
+        } else if key.starts_with("crit.dmg") {
+            // 暴击伤害类视为 Inc
+            Modifier::inc("crit.dmg", value, source)
+        } else {
+            Modifier::base(key, value, source)
+        };
+        self.mod_db.add(modifier);
+    }
     
     /// 应用机制基础效果
     /// 
@@ -364,6 +404,7 @@ impl<'a> StatAggregator<'a> {
             let effects = mechanics.calculate_base_effects();
             for (key, value) in effects {
                 Self::apply_stat_to_pool(&mut self.pool, &key, value);
+                self.add_to_mod_db(&key, value, "mechanic_effect");
             }
         }
     }
@@ -378,28 +419,30 @@ impl<'a> StatAggregator<'a> {
         // 技能基础伤害
         for (key, value) in &skill.base_damage {
             self.pool.add_base(key, *value);
+            self.mod_db.add(Modifier::base(key, *value, &format!("skill:{}", skill.id)));
         }
 
         // 技能自带属性
         for (key, value) in &skill.stats {
-            self.apply_stat(key, *value);
+            self.apply_stat(key, *value, &format!("skill:{}", skill.id));
         }
     }
 
     /// 聚合辅助技能属性
     pub fn aggregate_support_skills(&mut self, supports: &[SkillData]) {
         for (idx, support) in supports.iter().enumerate() {
+            let bucket_id = (idx + 100) as u32; // 辅助技能使用 100+ 的 bucket
+            let source = format!("support:{}", support.id);
+            
             for (key, value) in &support.stats {
                 if key.starts_with("mod.more.") {
                     // 辅助技能的 More 使用独立 bucket
-                    self.pool.add_more(
-                        &key.replace("mod.more.", ""),
-                        *value,
-                        (idx + 100) as u32, // 辅助技能使用 100+ 的 bucket
-                        &support.id,
-                    );
+                    let stripped_key = key.replace("mod.more.", "");
+                    self.pool.add_more(&stripped_key, *value, bucket_id, &support.id);
+                    // 同时添加到 ModDB（带 bucket）
+                    self.mod_db.add(Modifier::more_with_bucket(&stripped_key, *value, bucket_id, &source));
                 } else {
-                    self.apply_stat(key, *value);
+                    self.apply_stat(key, *value, &source);
                 }
             }
         }
@@ -408,7 +451,7 @@ impl<'a> StatAggregator<'a> {
     /// 聚合全局覆盖
     pub fn aggregate_overrides(&mut self, overrides: &HashMap<String, f64>) {
         for (key, value) in overrides {
-            self.apply_stat(key, *value);
+            self.apply_stat(key, *value, "global_override");
         }
     }
 
@@ -475,8 +518,19 @@ impl<'a> StatAggregator<'a> {
         }
     }
 
-    /// 获取最终的属性池
-    pub fn finalize(mut self) -> StatPool {
+    /// 获取最终的属性池和 ModDB
+    /// 
+    /// 返回值: (StatPool, ModDB)
+    /// - StatPool: 向后兼容的属性池
+    /// - ModDB: 结构化修正存储（用于溯源和条件评估）
+    pub fn finalize(mut self) -> (StatPool, ModDB) {
+        self.finalize_local_stats();
+        self.pool.recalculate_all();
+        (self.pool, self.mod_db)
+    }
+
+    /// 获取最终的属性池（仅 StatPool，向后兼容）
+    pub fn finalize_pool_only(mut self) -> StatPool {
         self.finalize_local_stats();
         self.pool.recalculate_all();
         self.pool

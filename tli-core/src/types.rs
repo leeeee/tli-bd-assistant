@@ -601,9 +601,12 @@ pub struct TraceEntry {
 // 内部计算类型
 // ============================================================
 
-/// 属性修正器
+/// 属性修正器（旧版，已废弃）
+/// 
+/// 请使用 `modifiers::Modifier` 替代
+#[deprecated(note = "Use modifiers::Modifier instead")]
 #[derive(Debug, Clone)]
-pub struct Modifier {
+pub struct LegacyModifier {
     /// 属性键
     pub key: String,
     /// 数值

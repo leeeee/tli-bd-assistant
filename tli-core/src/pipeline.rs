@@ -10,14 +10,23 @@
 //! 7. Speed Layer
 //! 8. Crit & Luck
 //! 9. Mitigation & Output
+//!
+//! ## 增量计算支持
+//!
+//! 通过 `PreparedContext` 缓存中间结果，支持悬停预览场景的增量计算：
+//! - `prepare_context()`: 准备阶段，生成可复用的中间结果
+//! - `calculate_from_prepared()`: 从 PreparedContext 计算最终结果
+//! - `calculate_diff_incremental()`: 增量计算预览差异
 
 use crate::conversion::{
     extract_conversion_rules, extract_extra_as_rules, ConversionEngine, DamageType, DamageWithTags,
 };
 use crate::mechanics::MechanicsProcessor;
+use crate::modifiers::ModDB;
 use crate::stats::{StatAggregator, StatPool};
 use crate::tags::{ContextTags, TagRegistry};
 use crate::types::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -30,6 +39,87 @@ pub enum CalculationError {
     TagRegistryError(String),
     #[error("Calculation error: {0}")]
     CalculationError(String),
+}
+
+/// 预处理上下文（用于缓存中间结果）
+///
+/// 包含聚合阶段产出的所有中间数据，可被复用于增量计算。
+#[derive(Debug, Clone)]
+pub struct PreparedContext {
+    /// 标签注册表
+    pub registry: TagRegistry,
+    /// 属性池
+    pub stat_pool: StatPool,
+    /// 结构化修正存储
+    pub mod_db: ModDB,
+    /// 基础伤害（按伤害类型分组）
+    pub base_damages: HashMap<DamageType, (f64, f64)>,
+    /// 技能数据快照
+    pub skill_snapshot: SkillSnapshot,
+    /// 机制状态快照（层数）
+    pub mechanic_stacks: HashMap<String, f64>,
+    /// 上下文标志
+    pub context_flags: HashMap<String, bool>,
+    /// 上下文数值
+    pub context_values: HashMap<String, f64>,
+    /// 转化规则
+    pub conversion_rules: Vec<crate::conversion::ConversionRule>,
+    /// Extra-as 规则
+    pub extra_as_rules: Vec<crate::conversion::ExtraAsRule>,
+    /// 调试追踪
+    pub trace: Vec<TraceEntry>,
+}
+
+/// 技能数据快照（用于缓存）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillSnapshot {
+    pub id: String,
+    pub is_attack: bool,
+    pub base_time: f64,
+    pub effectiveness: f64,
+    pub tags: Vec<String>,
+}
+
+impl PreparedContext {
+    /// 合并另一个 PreparedContext 的 ModDB（用于增量计算）
+    ///
+    /// 用于悬停预览场景：复用 base 的 PreparedContext，仅合并 preview item 产生的 modifiers
+    pub fn merge_modifiers(&mut self, other_mod_db: &ModDB) {
+        self.mod_db.merge(other_mod_db);
+        // 重新计算 stat_pool（从合并后的 mod_db 重建）
+        self.rebuild_stat_pool_from_mod_db();
+    }
+
+    /// 从 ModDB 重建 StatPool
+    fn rebuild_stat_pool_from_mod_db(&mut self) {
+        use crate::modifiers::{ModifierKind, ModifierStore};
+
+        // 清空现有 StatPool
+        self.stat_pool = StatPool::new();
+
+        // 遍历 ModDB 中的所有修正，重建 StatPool
+        for modifier in self.mod_db.all_modifiers() {
+            match modifier.kind {
+                ModifierKind::Base => {
+                    self.stat_pool.add_base(&modifier.key, modifier.value);
+                }
+                ModifierKind::Increased => {
+                    self.stat_pool.add_increased(&modifier.key, modifier.value);
+                }
+                ModifierKind::More => {
+                    self.stat_pool.add_more(
+                        &modifier.key,
+                        modifier.value,
+                        modifier.bucket_id,
+                        &modifier.source,
+                    );
+                }
+                _ => {}
+            }
+        }
+
+        self.stat_pool.recalculate_all();
+    }
 }
 
 /// 主计算函数
@@ -55,7 +145,7 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
         context.inject_support_tags(&support.injected_tags);
     }
     context.inject_context_flags(&input.context_flags);
-    
+
     // 2.5 初始化机制处理器（祝福、球类等）
     let mechanics = MechanicsProcessor::new(
         input.mechanic_definitions.clone(),
@@ -90,7 +180,8 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     // 3.5 应用机制基础效果（如聚能祝福每层+4%伤害）
     aggregator.apply_mechanic_base_effects();
     
-    let stat_pool = aggregator.finalize();
+    // 获取 StatPool 和 ModDB（ModDB 用于溯源，当前暂未使用）
+    let (stat_pool, _mod_db) = aggregator.finalize();
 
     // 4. Base Calculation
     let base_damages = calculate_base_damage(&stat_pool, &input.active_skill);
@@ -172,11 +263,12 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     // 10. EHP Calculation
     let ehp_series = calculate_ehp(&stat_pool);
 
-    // 11. Build damage breakdown (带乘区明细)
+    // 11. Build damage breakdown (带乘区明细，使用 ModDB 提供详细来源)
     let damage_breakdown = build_damage_breakdown(
         &base_damages,
         &modified_damages,
         &stat_pool,
+        Some(&_mod_db),
         rate,
         crit_chance,
         crit_multiplier,
@@ -199,11 +291,35 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     })
 }
 
+/// 标签注册表 JSON 内容（编译时内嵌）
+/// 
+/// 数据来源：src/data/tags_registry.json
+/// 注意：如需修改标签定义，请编辑上述 JSON 文件
+const TAGS_REGISTRY_JSON: &str = include_str!("data/tags_registry.json");
+
 /// 创建默认的标签注册表
+/// 
+/// 从内嵌的 JSON 配置加载标签定义，实现数据与代码分离。
+/// 如果 JSON 解析失败，将回退到最小硬编码定义。
 fn create_default_registry() -> TagRegistry {
+    match TagRegistry::from_json(TAGS_REGISTRY_JSON) {
+        Ok(registry) => registry,
+        Err(_e) => {
+            // 解析失败时使用最小回退定义
+            // 注意：在生产环境中应记录此错误
+            #[cfg(debug_assertions)]
+            eprintln!("Warning: Failed to load tags from JSON: {}, using fallback", _e);
+            
+            create_fallback_registry()
+        }
+    }
+}
+
+/// 创建最小回退标签注册表（仅在 JSON 加载失败时使用）
+fn create_fallback_registry() -> TagRegistry {
     let mut registry = TagRegistry::new();
 
-    // 伤害类型标签
+    // 最小必需标签定义
     registry.register("Tag_Damage".to_string(), 1);
     registry.register("Tag_Physical".to_string(), 10);
     registry.register("Tag_Elemental".to_string(), 20);
@@ -211,8 +327,6 @@ fn create_default_registry() -> TagRegistry {
     registry.register("Tag_Cold".to_string(), 22);
     registry.register("Tag_Lightning".to_string(), 23);
     registry.register("Tag_Chaos".to_string(), 30);
-
-    // 技能类型标签
     registry.register("Tag_Attack".to_string(), 100);
     registry.register("Tag_Melee".to_string(), 101);
     registry.register("Tag_Ranged".to_string(), 102);
@@ -222,17 +336,259 @@ fn create_default_registry() -> TagRegistry {
     registry.register("Tag_DOT".to_string(), 130);
 
     // 设置继承关系
-    registry.set_parents(10, vec![1]);  // Physical -> Damage
-    registry.set_parents(20, vec![1]);  // Elemental -> Damage
-    registry.set_parents(21, vec![20]); // Fire -> Elemental
-    registry.set_parents(22, vec![20]); // Cold -> Elemental
-    registry.set_parents(23, vec![20]); // Lightning -> Elemental
-    registry.set_parents(30, vec![1]);  // Chaos -> Damage
-    registry.set_parents(101, vec![100]); // Melee -> Attack
-    registry.set_parents(102, vec![100]); // Ranged -> Attack
+    registry.set_parents(10, vec![1]);
+    registry.set_parents(20, vec![1]);
+    registry.set_parents(21, vec![20]);
+    registry.set_parents(22, vec![20]);
+    registry.set_parents(23, vec![20]);
+    registry.set_parents(30, vec![1]);
+    registry.set_parents(101, vec![100]);
+    registry.set_parents(102, vec![100]);
 
     registry.precompute_expanded_sets();
     registry
+}
+
+/// 准备计算上下文（Phase 1）
+///
+/// 执行聚合阶段，生成可复用的 PreparedContext。
+/// 用于悬停预览场景的增量计算优化。
+///
+/// # 使用场景
+/// ```ignore
+/// // 基准计算
+/// let base_ctx = prepare_context(&base_input)?;
+/// let base_result = calculate_from_prepared(&base_ctx)?;
+///
+/// // 预览计算（增量）
+/// let preview_ctx = prepare_context_incremental(&base_ctx, &preview_item)?;
+/// let preview_result = calculate_from_prepared(&preview_ctx)?;
+/// ```
+pub fn prepare_context(input: &CalculatorInput) -> Result<PreparedContext, CalculationError> {
+    let mut trace = Vec::new();
+
+    // 0. 初始化标签注册表
+    let registry = create_default_registry();
+
+    // 1. Sanitization & Slot Conflict
+    let sanitized_items = sanitize_items(&input.items, &input.preview_slot)?;
+    trace.push(TraceEntry {
+        phase: "Sanitization".to_string(),
+        description: format!("Processed {} items", sanitized_items.len()),
+        values: HashMap::new(),
+        matched_tags: vec![],
+    });
+
+    // 2. 建立上下文标签
+    let mut context = ContextTags::new(registry.clone());
+    context.inject_skill_tags(&input.active_skill.tags);
+    for support in &input.support_skills {
+        context.inject_support_tags(&support.injected_tags);
+    }
+    context.inject_context_flags(&input.context_flags);
+
+    // 2.5 初始化机制处理器
+    let mechanics = MechanicsProcessor::new(
+        input.mechanic_definitions.clone(),
+        input.mechanic_states.clone(),
+    );
+
+    // 3. Stat Pool Aggregation
+    let mut aggregator = StatAggregator::with_mechanics(&context, &mechanics);
+    aggregator.aggregate_items(&sanitized_items);
+    aggregator.aggregate_skill(&input.active_skill);
+    aggregator.aggregate_support_skills(&input.support_skills);
+    aggregator.aggregate_overrides(&input.global_overrides);
+    aggregator.apply_mechanic_base_effects();
+
+    let (stat_pool, mod_db) = aggregator.finalize();
+
+    // 4. Base Calculation
+    let base_damages = calculate_base_damage(&stat_pool, &input.active_skill);
+
+    // 5. 提取转化规则
+    let extra_as_rules = extract_extra_as_rules(&stat_pool);
+    let conversion_rules = extract_conversion_rules(&stat_pool);
+
+    // 创建技能快照
+    let skill_snapshot = SkillSnapshot {
+        id: input.active_skill.id.clone(),
+        is_attack: input.active_skill.is_attack,
+        base_time: input.active_skill.base_time,
+        effectiveness: input.active_skill.effectiveness,
+        tags: input.active_skill.tags.clone(),
+    };
+
+    Ok(PreparedContext {
+        registry,
+        stat_pool,
+        mod_db,
+        base_damages,
+        skill_snapshot,
+        mechanic_stacks: mechanics.get_all_stacks(),
+        context_flags: input.context_flags.clone(),
+        context_values: input.context_values.clone(),
+        conversion_rules,
+        extra_as_rules,
+        trace,
+    })
+}
+
+/// 从预处理上下文计算最终结果（Phase 2）
+///
+/// 复用 PreparedContext 中的中间数据进行后续计算阶段。
+pub fn calculate_from_prepared(
+    ctx: &PreparedContext,
+    target_config: &TargetConfig,
+) -> Result<CalculatorOutput, CalculationError> {
+    let mut trace = ctx.trace.clone();
+
+    // 5. Extra & Conversion (with Tag Retention)
+    let engine = ConversionEngine::new((ctx.registry.max_id() + 1) as usize);
+    let damage_pool = engine.process(
+        &ctx.base_damages,
+        &ctx.extra_as_rules,
+        &ctx.conversion_rules,
+        &ctx.registry,
+    );
+
+    // 创建临时 ContextTags 用于 apply_modifications
+    let mut context = ContextTags::new(ctx.registry.clone());
+    context.inject_skill_tags(&ctx.skill_snapshot.tags);
+    context.inject_context_flags(&ctx.context_flags);
+
+    // 6. Modification (Inc/More)
+    let modified_damages = apply_modifications(&damage_pool, &ctx.stat_pool, &context);
+
+    // Lucky 处理
+    let is_lucky = ctx.stat_pool.get_base("flag.lucky") > 0.0
+        || ctx.context_flags.get("lucky_damage").copied().unwrap_or(false);
+
+    let total_damage: f64 = modified_damages
+        .values()
+        .map(|d| expected_damage(d.min, d.max, is_lucky))
+        .sum();
+
+    trace.push(TraceEntry {
+        phase: "Modification".to_string(),
+        description: "Applied Inc/More modifiers".to_string(),
+        values: modified_damages
+            .iter()
+            .map(|(k, v)| (k.as_key().to_string(), v.average()))
+            .collect(),
+        matched_tags: vec![],
+    });
+
+    // 7. Speed Layer
+    let rate = calculate_rate_from_pool(&ctx.stat_pool, &ctx.skill_snapshot);
+    trace.push(TraceEntry {
+        phase: "Speed".to_string(),
+        description: format!("Attack/Cast rate: {:.2}/s", rate),
+        values: [("rate".to_string(), rate)].into_iter().collect(),
+        matched_tags: vec![],
+    });
+
+    // 8. Crit & Luck
+    let (crit_chance, crit_multiplier) = calculate_crit(&ctx.stat_pool, &ctx.context_flags);
+    let crit_factor = calculate_crit_factor(crit_chance, crit_multiplier);
+
+    let hit_damage = total_damage * crit_factor;
+    trace.push(TraceEntry {
+        phase: "Critical".to_string(),
+        description: format!(
+            "Crit: {:.1}% chance, {:.1}% multi",
+            crit_chance * 100.0,
+            crit_multiplier * 100.0
+        ),
+        values: [
+            ("crit_chance".to_string(), crit_chance),
+            ("crit_multiplier".to_string(), crit_multiplier),
+            ("crit_factor".to_string(), crit_factor),
+        ]
+        .into_iter()
+        .collect(),
+        matched_tags: vec![],
+    });
+
+    // 9. Mitigation
+    let hit_chance = calculate_hit_chance(&ctx.stat_pool, target_config);
+    let dps_theoretical = hit_damage * rate;
+    let dps_effective = calculate_effective_dps(
+        &modified_damages,
+        rate,
+        crit_factor,
+        hit_chance,
+        target_config,
+    );
+
+    // 10. EHP Calculation
+    let ehp_series = calculate_ehp(&ctx.stat_pool);
+
+    // 构建输出（使用 ModDB 提供详细来源）
+    let damage_breakdown = build_damage_breakdown(
+        &ctx.base_damages,
+        &modified_damages,
+        &ctx.stat_pool,
+        Some(&ctx.mod_db),
+        rate,
+        crit_chance,
+        crit_multiplier,
+        hit_chance,
+        target_config,
+        is_lucky,
+    );
+
+    Ok(CalculatorOutput {
+        dps_theoretical,
+        dps_effective,
+        hit_damage,
+        rate,
+        crit_chance,
+        crit_multiplier,
+        hit_chance,
+        ehp_series,
+        damage_breakdown,
+        debug_trace: trace,
+    })
+}
+
+/// 从 SkillSnapshot 计算速率（用于 PreparedContext）
+fn calculate_rate_from_pool(pool: &StatPool, skill: &SkillSnapshot) -> f64 {
+    let base_time = skill.base_time;
+    if base_time <= 0.0 {
+        return 1.0;
+    }
+
+    let base_rate = 1.0 / base_time;
+    let speed_key = if skill.is_attack {
+        "speed.attack"
+    } else {
+        "speed.cast"
+    };
+    let speed_inc = pool.get_increased(speed_key);
+    let speed_more = pool.get_more_multiplier(speed_key);
+
+    base_rate * (1.0 + speed_inc) * speed_more
+}
+
+/// 为预览装备创建增量 ModDB
+///
+/// 用于悬停预览场景：只聚合 preview item 的属性，返回增量 ModDB
+pub fn prepare_item_modifiers(
+    item: &ItemData,
+    registry: &TagRegistry,
+    mechanics: Option<&MechanicsProcessor>,
+) -> ModDB {
+    let context = ContextTags::new(registry.clone());
+    let mut aggregator = if let Some(m) = mechanics {
+        StatAggregator::with_mechanics(&context, m)
+    } else {
+        StatAggregator::new(&context)
+    };
+
+    aggregator.aggregate_single_item(item);
+    let (_pool, mod_db) = aggregator.finalize();
+    mod_db
 }
 
 /// 1. Sanitization & Slot Conflict
@@ -431,7 +787,7 @@ fn calculate_base_damage(
 
     // 应用等级缩放乘数 (21级及以上的 More 乘数)
     if level_multiplier > 1.0 {
-        for (_, (min, max)) in base.iter_mut() {
+    for (_, (min, max)) in base.iter_mut() {
             *min *= level_multiplier;
             *max *= level_multiplier;
         }
@@ -764,6 +1120,7 @@ fn build_damage_breakdown(
     base_damages: &HashMap<DamageType, (f64, f64)>,
     modified_damages: &HashMap<DamageType, DamageWithTags>,
     pool: &StatPool,
+    mod_db: Option<&ModDB>,
     rate: f64,
     crit_chance: f64,
     crit_multiplier: f64,
@@ -794,10 +1151,11 @@ fn build_damage_breakdown(
         .map(|(min, max)| (min + max) / 2.0)
         .sum();
 
-    // 计算各乘区明细
+    // 计算各乘区明细（传入 ModDB 以获取详细来源）
     let multipliers = build_multiplier_breakdown(
         base_damage,
         pool,
+        mod_db,
         rate,
         crit_chance,
         crit_multiplier,
@@ -830,12 +1188,15 @@ fn build_damage_breakdown(
 fn build_multiplier_breakdown(
     base_damage: f64,
     pool: &StatPool,
+    mod_db: Option<&ModDB>,
     rate: f64,
     crit_chance: f64,
     crit_multiplier: f64,
     hit_chance: f64,
     target: &TargetConfig,
 ) -> MultiplierBreakdown {
+    use crate::modifiers::{ModifierKind, ModifierStore};
+
     let mut zone_sources: HashMap<String, Vec<ZoneSource>> = HashMap::new();
 
     // 1. 基础伤害区
@@ -847,110 +1208,76 @@ fn build_multiplier_breakdown(
     }]);
 
     // 2. 增伤区 (收集所有 increased 来源)
-    let inc_dmg_all = pool.get_increased("mod.inc.dmg.all");
-    let inc_dmg_phys = pool.get_increased("mod.inc.dmg.phys");
-    let inc_dmg_fire = pool.get_increased("mod.inc.dmg.fire");
-    let inc_dmg_cold = pool.get_increased("mod.inc.dmg.cold");
-    let inc_dmg_lightning = pool.get_increased("mod.inc.dmg.lightning");
-    let inc_dmg_elemental = pool.get_increased("mod.inc.dmg.elemental");
-    let inc_dmg_chaos = pool.get_increased("mod.inc.dmg.chaos");
-    let inc_dmg_spell = pool.get_increased("mod.inc.dmg.spell");
-    let inc_dmg_attack = pool.get_increased("mod.inc.dmg.attack");
+    let inc_keys = ["dmg.all", "dmg.phys", "dmg.fire", "dmg.cold", 
+                    "dmg.lightning", "dmg.elemental", "dmg.chaos", "dmg.spell", "dmg.attack"];
+    let inc_names = ["全伤害增加", "物理增伤", "火焰增伤", "冰冷增伤",
+                     "闪电增伤", "元素增伤", "混沌增伤", "法术增伤", "攻击增伤"];
     
-    // 综合增伤区 = 1 + sum(各类增伤)
-    let total_increased = inc_dmg_all + inc_dmg_phys + inc_dmg_fire + inc_dmg_cold 
-        + inc_dmg_lightning + inc_dmg_elemental + inc_dmg_chaos + inc_dmg_spell + inc_dmg_attack;
-    let increased_zone = 1.0 + total_increased;
-    
+    let mut total_increased = 0.0;
     let mut inc_sources = Vec::new();
-    if inc_dmg_all > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "全伤害增加".to_string(),
-            value: inc_dmg_all,
-            stat_key: "mod.inc.dmg.all".to_string(),
-        });
+    
+    for (key, name) in inc_keys.iter().zip(inc_names.iter()) {
+        let value = pool.get_increased(key);
+        if value > 0.0 {
+            total_increased += value;
+            
+            // 如果有 ModDB，获取详细来源
+            if let Some(db) = mod_db {
+                let sources = db.get_sources(key);
+                for src in sources.iter().filter(|s| s.kind == ModifierKind::Increased) {
+                    inc_sources.push(ZoneSource {
+                        source: format!("{} ({})", src.source, name),
+                        value: src.value,
+                        stat_key: key.to_string(),
+                    });
+                }
+            } else {
+                inc_sources.push(ZoneSource {
+                    source: name.to_string(),
+                    value,
+                    stat_key: key.to_string(),
+                });
+            }
+        }
     }
-    if inc_dmg_phys > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "物理增伤".to_string(),
-            value: inc_dmg_phys,
-            stat_key: "mod.inc.dmg.phys".to_string(),
-        });
-    }
-    if inc_dmg_fire > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "火焰增伤".to_string(),
-            value: inc_dmg_fire,
-            stat_key: "mod.inc.dmg.fire".to_string(),
-        });
-    }
-    if inc_dmg_cold > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "冰冷增伤".to_string(),
-            value: inc_dmg_cold,
-            stat_key: "mod.inc.dmg.cold".to_string(),
-        });
-    }
-    if inc_dmg_lightning > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "闪电增伤".to_string(),
-            value: inc_dmg_lightning,
-            stat_key: "mod.inc.dmg.lightning".to_string(),
-        });
-    }
-    if inc_dmg_elemental > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "元素增伤".to_string(),
-            value: inc_dmg_elemental,
-            stat_key: "mod.inc.dmg.elemental".to_string(),
-        });
-    }
-    if inc_dmg_chaos > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "混沌增伤".to_string(),
-            value: inc_dmg_chaos,
-            stat_key: "mod.inc.dmg.chaos".to_string(),
-        });
-    }
-    if inc_dmg_spell > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "法术增伤".to_string(),
-            value: inc_dmg_spell,
-            stat_key: "mod.inc.dmg.spell".to_string(),
-        });
-    }
-    if inc_dmg_attack > 0.0 {
-        inc_sources.push(ZoneSource {
-            source: "攻击增伤".to_string(),
-            value: inc_dmg_attack,
-            stat_key: "mod.inc.dmg.attack".to_string(),
-        });
-    }
+    
+    let increased_zone = 1.0 + total_increased;
     zone_sources.insert("increased".to_string(), inc_sources);
 
     // 3. More 乘区
-    let more_dmg_all = pool.get_more_multiplier("mod.more.dmg.all");
-    let more_dmg_phys = pool.get_more_multiplier("mod.more.dmg.phys");
-    let more_dmg_fire = pool.get_more_multiplier("mod.more.dmg.fire");
-    let more_dmg_cold = pool.get_more_multiplier("mod.more.dmg.cold");
-    let more_dmg_lightning = pool.get_more_multiplier("mod.more.dmg.lightning");
-    let more_dmg_elemental = pool.get_more_multiplier("mod.more.dmg.elemental");
-    let more_dmg_spell = pool.get_more_multiplier("mod.more.dmg.spell");
-    let more_dmg_attack = pool.get_more_multiplier("mod.more.dmg.attack");
+    let more_keys = ["dmg.all", "dmg.phys", "dmg.fire", "dmg.cold",
+                     "dmg.lightning", "dmg.elemental", "dmg.spell", "dmg.attack"];
+    let more_names = ["全伤害提高", "物理伤害提高", "火焰伤害提高", "冰冷伤害提高",
+                      "闪电伤害提高", "元素伤害提高", "法术伤害提高", "攻击伤害提高"];
     
-    // More 区 = product(各类 more)
-    let more_zone = more_dmg_all * more_dmg_phys * more_dmg_fire * more_dmg_cold 
-        * more_dmg_lightning * more_dmg_elemental * more_dmg_spell * more_dmg_attack;
-    
+    let mut more_zone = 1.0;
     let mut more_sources = Vec::new();
-    if more_dmg_all != 1.0 {
-        more_sources.push(ZoneSource {
-            source: "全伤害提高".to_string(),
-            value: more_dmg_all,
-            stat_key: "mod.more.dmg.all".to_string(),
-        });
+    
+    for (key, name) in more_keys.iter().zip(more_names.iter()) {
+        let value = pool.get_more_multiplier(key);
+        if value != 1.0 {
+            more_zone *= value;
+            
+            // 如果有 ModDB，获取详细来源
+            if let Some(db) = mod_db {
+                let sources = db.get_sources(key);
+                for src in sources.iter().filter(|s| s.kind == ModifierKind::More) {
+                    more_sources.push(ZoneSource {
+                        source: format!("{} ({})", src.source, name),
+                        value: 1.0 + src.value, // More 值显示为乘数形式
+                        stat_key: key.to_string(),
+                    });
+                }
+            } else {
+                more_sources.push(ZoneSource {
+                    source: name.to_string(),
+                    value,
+                    stat_key: key.to_string(),
+                });
+            }
+        }
     }
-    // ... 其他 more 来源同理 (简化)
+    
     zone_sources.insert("more".to_string(), more_sources);
 
     // 4. 暴击期望区

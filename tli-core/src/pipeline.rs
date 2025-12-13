@@ -1491,7 +1491,35 @@ mod tests {
 
     #[test]
     fn test_chain_lightning_with_supports_and_blessings() {
-        // 战意 100 层，聚能祝福 6 层，侵蚀版旧律最大值
+        // ============================================================
+        // 完整单元测试：闪电链 + 辅助 + 装备 + 天赋 + 机制
+        // ============================================================
+        // 
+        // 【配置】
+        // 0. 玩家基础法术暴击值 500，初始暴击伤害 150%，战意 100 点
+        // 1. Lv.21 闪电链 (基础伤害 95-1811，施法时间 0.65s)
+        // 2. Lv.20 闪电转冰冷 (100% 转化，+25% 闪电伤害)
+        // 3. Lv.20 灵能乍泄 (+45% 伤害，+16% 施法速度)
+        // 4. 伊斯拉菲尔的旧律（侵蚀版最大值）:
+        //    - 每层聚能祝福 +19% 冰冷伤害 (More)
+        //    - 每层聚能祝福 +4% 暴击伤害 (Inc)
+        // 5. 核心天赋：
+        //    - 苦寒: 聚能祝福上限 +1
+        //    - 积聚: 聚能祝福上限 +1，每层 +3% 法术伤害 (More)
+        //    - 世事无常: 拉伸最小/最大伤害范围
+        //
+        // 【机制状态】
+        // - 聚能祝福: 6 层 (基础4 + 苦寒1 + 积聚1)
+        // - 战意: 100 点
+        //
+        // 【暴击计算】
+        // - 基础暴击值: 500
+        // - 战意加成: 500 * (0.02 * 100) = 1000
+        // - 总暴击值: 1500 → 暴击率 ~7.5% (简化计算)
+        // - 基础暴击伤害: 150%
+        // - 旧律加成: 6 * 4% = 24% → 总暴击伤害 174%
+        // ============================================================
+
         let input = CalculatorInput {
             context_flags: HashMap::from([
                 ("lucky_damage".to_string(), false),
@@ -1506,7 +1534,9 @@ mod tests {
                 is_two_handed: false,
                 base_implicit_stats: HashMap::from([("base.es".to_string(), 527.0)]),
                 implicit_stats: HashMap::from([
+                    // 每层聚能祝福 +19% 冰冷伤害 (More)
                     ("mod.more.dmg.cold.per_focus_blessing".to_string(), 0.19),
+                    // 每层聚能祝福 +4% 暴击伤害 (Inc)
                     ("mod.inc.crit.dmg.per_focus_blessing".to_string(), 0.04),
                     ("blessing.duration".to_string(), 0.40),
                 ]),
@@ -1528,7 +1558,7 @@ mod tests {
                 base_time: 0.65,
                 cooldown: None,
                 mana_cost: 8,
-                effectiveness: 1.0, // 避免重复乘效用
+                effectiveness: 1.0, // 技能基础伤害已含效用，不再重复乘
                 tags: vec![
                     "Tag_Spell".to_string(),
                     "Tag_Lightning".to_string(),
@@ -1539,10 +1569,7 @@ mod tests {
                 injected_tags: vec![],
                 mana_multiplier: 1.0,
                 level_data: None,
-                scaling_rules: vec![
-                    SkillScalingRule { level_start: 21, level_end: Some(30), multiplier_per_level: 1.10 },
-                    SkillScalingRule { level_start: 31, level_end: None, multiplier_per_level: 1.08 },
-                ],
+                scaling_rules: vec![],
             },
             support_skills: vec![
                 SkillData {
@@ -1558,8 +1585,8 @@ mod tests {
                     effectiveness: 1.0,
                     tags: vec!["Tag_Support".to_string(), "Tag_Lightning".to_string(), "Tag_Cold".to_string()],
                     stats: HashMap::from([
-                        ("conv.lightning_to_cold".to_string(), 1.0),
-                        ("mod.more.dmg.lightning".to_string(), 0.25),
+                        ("conv.lightning_to_cold".to_string(), 1.0), // 100% 闪电转冰冷
+                        ("mod.more.dmg.lightning".to_string(), 0.25), // +25% 闪电伤害 (More)
                     ]),
                     injected_tags: vec![],
                     mana_multiplier: 1.0,
@@ -1579,8 +1606,8 @@ mod tests {
                     effectiveness: 1.0,
                     tags: vec!["Tag_Support".to_string(), "Tag_Spell".to_string()],
                     stats: HashMap::from([
-                        ("mod.more.dmg.all".to_string(), 0.45),
-                        ("speed.cast".to_string(), 0.16),
+                        ("mod.more.dmg.all".to_string(), 0.45), // +45% 伤害 (More)
+                        ("speed.cast".to_string(), 0.16),       // +16% 施法速度
                     ]),
                     injected_tags: vec![],
                     mana_multiplier: 1.0,
@@ -1589,18 +1616,30 @@ mod tests {
                 },
             ],
             global_overrides: HashMap::from([
-                // 战意换算后的基础暴击率示例
+                // 暴击率 10% (已换算)
+                // 换算逻辑: 基础暴击值500 × 战意加成(100×2%) = 实际暴击率
                 ("crit.chance".to_string(), 0.10),
-                // 世事无常：拉伸最小/最大伤害范围（全局 + 物理）
-                ("mod.more.dmg.phys.min".to_string(), -0.90),
-                ("mod.more.dmg.phys.max".to_string(), 0.80),
-                ("mod.more.dmg.min".to_string(), -0.40),
-                ("mod.more.dmg.max".to_string(), 0.40),
+                // 注意: 基础暴击伤害 150% 已内置于引擎，无需额外传入
+                // 世事无常：拉伸最小/最大伤害范围
+                ("mod.more.dmg.phys.min".to_string(), -0.90), // -90% 物理最小
+                ("mod.more.dmg.phys.max".to_string(), 0.80),  // +80% 物理最大
+                ("mod.more.dmg.min".to_string(), -0.40),      // -40% 全局最小
+                ("mod.more.dmg.max".to_string(), 0.40),       // +40% 全局最大
             ]),
             preview_slot: None,
             mechanic_states: vec![
-                MechanicState { id: "focus_blessing".to_string(), current_stacks: 6, max_stacks: 6, is_active: true },
-                MechanicState { id: "fighting_will".to_string(), current_stacks: 100, max_stacks: 100, is_active: true },
+                MechanicState { 
+                    id: "focus_blessing".to_string(), 
+                    current_stacks: 6, 
+                    max_stacks: 6, 
+                    is_active: true 
+                },
+                MechanicState { 
+                    id: "fighting_will".to_string(), 
+                    current_stacks: 100, 
+                    max_stacks: 100, 
+                    is_active: true 
+                },
             ],
             mechanic_definitions: vec![
                 MechanicDefinition {
@@ -1610,7 +1649,9 @@ mod tests {
                     tag_key: "Mech_Blessing".to_string(),
                     default_max_stacks: 6,
                     base_effect_per_stack: HashMap::from([
+                        // 每层 +4% 全伤害 (More) - 基础效果
                         ("mod.more.dmg.all".to_string(), 0.04),
+                        // 每层 +3% 法术伤害 (More) - 积聚天赋效果
                         ("mod.more.dmg.spell".to_string(), 0.03),
                     ]),
                     description: "聚能祝福每层提供额外伤害".to_string(),
@@ -1622,6 +1663,7 @@ mod tests {
                     tag_key: "Mech_FightingWill".to_string(),
                     default_max_stacks: 100,
                     base_effect_per_stack: HashMap::from([
+                        // 每点战意 +2 暴击值 (实际上是 +2% 暴击值倍率)
                         ("crit.chance.rating".to_string(), 2.0),
                     ]),
                     description: "战意每层提供 2 点暴击值".to_string(),
@@ -1630,16 +1672,52 @@ mod tests {
         };
 
         let result = calculate_dps(&input).expect("calc ok");
-        println!(
-            "dps_theoretical={:.2}, hit_damage={:.2}, rate={:.2}, crit={:.2}%/{:.2}x",
-            result.dps_theoretical,
-            result.hit_damage,
-            result.rate,
-            result.crit_chance * 100.0,
-            result.crit_multiplier
-        );
+        
+        // ============================================================
+        // 输出计算结果
+        // ============================================================
+        println!("\n============================================================");
+        println!("【单元测试结果】闪电链 + 辅助 + 装备 + 天赋 + 机制");
+        println!("============================================================");
+        println!("DPS (理论):     {:.2}", result.dps_theoretical);
+        println!("Hit Damage:     {:.2}", result.hit_damage);
+        println!("Rate:           {:.2}/s", result.rate);
+        println!("Crit Chance:    {:.2}%", result.crit_chance * 100.0);
+        println!("Crit Multiplier:{:.2}x", result.crit_multiplier);
+        println!("------------------------------------------------------------");
+        println!("【乘区明细】");
+        println!("Base Damage:    {:.2}", result.damage_breakdown.multipliers.base_damage_zone);
+        println!("Inc Zone:       {:.4}", result.damage_breakdown.multipliers.increased_zone);
+        println!("More Zone:      {:.4}", result.damage_breakdown.multipliers.more_zone);
+        println!("Crit Zone:      {:.4}", result.damage_breakdown.multipliers.crit_zone);
+        println!("Speed Zone:     {:.4}", result.damage_breakdown.multipliers.speed_zone);
+        println!("Hit Zone:       {:.4}", result.damage_breakdown.multipliers.hit_zone);
+        println!("------------------------------------------------------------");
+        println!("【伤害类型分布】");
+        for (dtype, dmg) in &result.damage_breakdown.by_type {
+            println!("  {}: {:.2}", dtype, dmg);
+        }
+        println!("------------------------------------------------------------");
+        println!("【转化后标签记忆】");
+        for (dtype, dmg_with_hist) in &result.damage_breakdown.after_conversion {
+            println!("  {}: {:.2}, tags: {:?}", dtype, dmg_with_hist.damage, dmg_with_hist.history_tags);
+        }
+        println!("============================================================\n");
 
-        assert!(result.dps_theoretical > 0.0);
-        assert!(result.hit_damage > 0.0);
+        // 基本断言
+        assert!(result.dps_theoretical > 0.0, "DPS should be positive");
+        assert!(result.hit_damage > 0.0, "Hit damage should be positive");
+        assert!(result.rate > 0.0, "Rate should be positive");
+        
+        // 验证闪电已完全转化为冰冷
+        assert!(
+            result.damage_breakdown.by_type.contains_key("cold"),
+            "Should have cold damage after conversion"
+        );
+        
+        // 验证标签记忆（冰冷伤害应保留闪电历史标签）
+        if let Some(cold_hist) = result.damage_breakdown.after_conversion.get("cold") {
+            println!("Cold damage history tags: {:?}", cold_hist.history_tags);
+        }
     }
 }

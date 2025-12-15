@@ -223,13 +223,79 @@ pub fn calculate_dps(input: &CalculatorInput) -> Result<CalculatorOutput, Calcul
     });
 
     // 7. Speed Layer
-    let rate = calculate_rate(&stat_pool, &input.active_skill);
+    let rate_base = calculate_rate(&stat_pool, &input.active_skill);
+    let mut rate = rate_base;
     trace.push(TraceEntry {
         phase: "Speed".to_string(),
-        description: format!("Attack/Cast rate: {:.2}/s", rate),
-        values: [("rate".to_string(), rate)].into_iter().collect(),
+        description: format!("Attack/Cast base rate: {:.2}/s", rate_base),
+        values: [("rate".to_string(), rate_base)].into_iter().collect(),
         matched_tags: vec![],
     });
+
+    let use_spell_burst = input.context_flags.get("use_spell_burst").copied().unwrap_or(false);
+
+    if use_spell_burst {
+        // 触发型迸发：遵循用户指定逻辑
+        match compute_spell_burst_charge_params(&stat_pool, &input.active_skill) {
+            Some((m, t_full, playsafe_on)) if m >= 1 => {
+                rate = m as f64 / t_full;
+                trace.push(TraceEntry {
+                    phase: "Spell Burst (triggered)".to_string(),
+                    description: format!(
+                        "Spell Burst triggered: M={} t_full={:.3}s → rate={:.2}/s",
+                        m, t_full, rate
+                    ),
+                    values: [
+                        ("M".to_string(), m as f64),
+                        ("t_full".to_string(), t_full),
+                        ("rate_base".to_string(), rate_base),
+                        ("rate_burst".to_string(), rate),
+                        ("playsafe_on".to_string(), if playsafe_on { 1.0 } else { 0.0 }),
+                    ]
+                    .into_iter()
+                    .collect(),
+                    matched_tags: vec![],
+                });
+            }
+            _ => {
+                // M < 1 或资格不符：视为无可用迸发层，速率置 0，DPS 将为 0
+                rate = 0.0;
+                trace.push(TraceEntry {
+                    phase: "Spell Burst (triggered)".to_string(),
+                    description: "Spell Burst inactive (M < 1 or not eligible), rate=0".to_string(),
+                    values: [
+                        ("rate_base".to_string(), rate_base),
+                        ("rate_burst".to_string(), rate),
+                    ]
+                    .into_iter()
+                    .collect(),
+                    matched_tags: vec![],
+                });
+            }
+        }
+    } else if let Some(sb) = compute_spell_burst_rate(&stat_pool, &input.active_skill, rate_base) {
+        // 保持原逻辑（有 0.1s 层间隔、不丢伤害）
+        rate = sb.rate_burst;
+        trace.push(TraceEntry {
+            phase: "Spell Burst".to_string(),
+            description: format!(
+                "Spell Burst active: M={} t_full={:.3}s t_cycle={:.3}s → rate={:.2}/s",
+                sb.m, sb.t_full, sb.t_cycle, sb.rate_burst
+            ),
+            values: [
+                ("M".to_string(), sb.m as f64),
+                ("t_full".to_string(), sb.t_full),
+                ("t_round".to_string(), sb.t_round),
+                ("t_cycle".to_string(), sb.t_cycle),
+                ("rate_base".to_string(), sb.rate_base),
+                ("rate_burst".to_string(), sb.rate_burst),
+                ("playsafe_on".to_string(), if sb.playsafe_on { 1.0 } else { 0.0 }),
+            ]
+            .into_iter()
+            .collect(),
+            matched_tags: vec![],
+        });
+    }
 
     // 8. Crit & Luck
     let (crit_chance, crit_multiplier) = calculate_crit(&stat_pool, &input.context_flags);
@@ -1003,6 +1069,239 @@ fn calculate_rate(pool: &StatPool, skill: &SkillData) -> f64 {
     }
 
     rate
+}
+
+struct SpellBurstInfo {
+    m: u32,
+    t_full: f64,
+    t_round: f64,
+    t_cycle: f64,
+    rate_base: f64,
+    rate_burst: f64,
+    playsafe_on: bool,
+}
+
+fn skill_has_tag(skill: &SkillData, tag: &str) -> bool {
+    skill.tags.iter().any(|t| t == tag)
+}
+
+fn compute_spell_burst_charge_params(pool: &StatPool, skill: &SkillData) -> Option<(u32, f64, bool)> {
+    // 基础资格判定
+    if skill.is_attack {
+        return None;
+    }
+    if !skill_has_tag(skill, "Tag_Spell") {
+        return None;
+    }
+    if skill.cooldown.is_some() {
+        return None;
+    }
+    let blocked = ["Tag_Channeling", "Tag_Minion", "Tag_Totem", "Tag_Trap", "Tag_Brand"];
+    if blocked.iter().any(|t| skill_has_tag(skill, t)) {
+        return None;
+    }
+
+    // 充能时间
+    let mut inc = pool.get_increased("speed.spell_burst_charge");
+    let mut more = pool.get_more_multiplier("speed.spell_burst_charge");
+    let playsafe_on = pool.get_base("flag.talent.playsafe") > 0.0;
+    if playsafe_on {
+        inc += pool.get_increased("speed.cast");
+        more *= pool.get_more_multiplier("speed.cast");
+    }
+    let denom = (1.0 + inc) * more;
+    if denom <= 0.0 {
+        return None;
+    }
+    let t_full = 2.0 / denom;
+
+    // 最大层数 M
+    let m_raw = pool.get_base("mechanic.spell_burst.max_stacks");
+    let m = m_raw.floor() as i32;
+    if m < 1 {
+        return None;
+    }
+    let m_u = m as u32;
+
+    Some((m_u, t_full, playsafe_on))
+}
+
+fn compute_spell_burst_rate(pool: &StatPool, skill: &SkillData, rate_base: f64) -> Option<SpellBurstInfo> {
+    // 复用资格判定 + 充能参数
+    let (m_u, t_full, playsafe_on) = compute_spell_burst_charge_params(pool, skill)?;
+
+    // 0.1s 层间隔
+    let t_round = if m_u <= 1 { 0.0 } else { (m_u - 1) as f64 * 0.1 };
+    let t_cycle = t_full.max(t_round);
+    if t_cycle <= 0.0 {
+        return None;
+    }
+    let rate_burst = m_u as f64 / t_cycle;
+
+    Some(SpellBurstInfo {
+        m: m_u,
+        t_full,
+        t_round,
+        t_cycle,
+        rate_base,
+        rate_burst,
+        playsafe_on,
+    })
+}
+
+#[cfg(test)]
+mod spell_burst_tests {
+    use super::*;
+    use std::collections::HashMap;
+    use crate::types::{CalculatorInput, TargetConfig};
+
+    fn make_spell() -> SkillData {
+        SkillData {
+            id: "test_spell".to_string(),
+            skill_type: SkillType::Active,
+            damage_type: None,
+            is_attack: false,
+            level: 1,
+            base_damage: HashMap::new(),
+            base_time: 0.8,
+            cooldown: None,
+            mana_cost: 0,
+            effectiveness: 1.0,
+            tags: vec!["Tag_Spell".to_string()],
+            stats: HashMap::new(),
+            injected_tags: vec![],
+            mana_multiplier: 1.0,
+            level_data: None,
+            scaling_rules: vec![],
+        }
+    }
+
+    fn approx(a: f64, b: f64) -> bool {
+        (a - b).abs() < 1e-6
+    }
+
+    #[test]
+    fn spell_burst_inactive_when_m_zero() {
+        let pool = StatPool::default();
+        let skill = make_spell();
+        let info = compute_spell_burst_rate(&pool, &skill, 1.0 / skill.base_time);
+        assert!(info.is_none());
+    }
+
+    #[test]
+    fn spell_burst_rate_charging_bottleneck() {
+        let mut pool = StatPool::default();
+        pool.add_base("mechanic.spell_burst.max_stacks", 3.0);
+        let skill = make_spell();
+        let base_rate = 1.0 / skill.base_time;
+        let info = compute_spell_burst_rate(&pool, &skill, base_rate).expect("should activate");
+        assert_eq!(info.m, 3);
+        assert!(approx(info.t_full, 2.0));
+        assert!(approx(info.t_round, 0.2));
+        assert!(approx(info.t_cycle, 2.0));
+        assert!(approx(info.rate_burst, 1.5));
+    }
+
+    #[test]
+    fn spell_burst_rate_interval_bottleneck() {
+        let mut pool = StatPool::default();
+        pool.add_base("mechanic.spell_burst.max_stacks", 3.0);
+        pool.add_increased("speed.spell_burst_charge", 19.0); // t_full = 2 / 20 = 0.1
+        let skill = make_spell();
+        let base_rate = 1.0 / skill.base_time;
+        let info = compute_spell_burst_rate(&pool, &skill, base_rate).expect("should activate");
+        assert!(approx(info.t_full, 0.1));
+        assert!(approx(info.t_round, 0.2));
+        assert!(approx(info.t_cycle, 0.2));
+        assert!(approx(info.rate_burst, 15.0));
+    }
+
+    #[test]
+    fn spell_burst_play_safe_accelerates_charge() {
+        let mut pool = StatPool::default();
+        pool.add_base("mechanic.spell_burst.max_stacks", 3.0);
+        pool.add_base("flag.talent.playsafe", 1.0);
+        pool.add_increased("speed.cast", 0.5); // +50% 施法速度
+        let skill = make_spell();
+        let base_rate = 1.0 / skill.base_time;
+        let info = compute_spell_burst_rate(&pool, &skill, base_rate).expect("should activate");
+        // t_full = 2 / 1.5 = 1.333...
+        assert!(approx(info.t_full, 1.3333333333));
+        assert!(info.rate_burst > 1.5); // faster than无 playsafe baseline(1.5)
+        assert!(info.playsafe_on);
+    }
+
+    #[test]
+    fn spell_burst_blocked_by_cooldown() {
+        let mut skill = make_spell();
+        skill.cooldown = Some(1.0);
+        let pool = StatPool::default();
+        let info = compute_spell_burst_rate(&pool, &skill, 1.0 / skill.base_time);
+        assert!(info.is_none());
+    }
+
+    #[test]
+    fn spell_burst_trigger_flag_zero_rate_when_m_lt_1() {
+        // use_spell_burst = true 且 M < 1 → rate = 0, DPS = 0
+        let input = CalculatorInput {
+            context_flags: HashMap::from([("use_spell_burst".to_string(), true)]),
+            context_values: HashMap::new(),
+            target_config: TargetConfig::default(),
+            items: vec![],
+            active_skill: SkillData {
+                base_time: 1.0,
+                base_damage: HashMap::from([
+                    ("dmg.cold.min".to_string(), 10.0),
+                    ("dmg.cold.max".to_string(), 20.0),
+                ]),
+                tags: vec!["Tag_Spell".to_string()],
+                ..make_spell()
+            },
+            support_skills: vec![],
+            global_overrides: HashMap::new(), // M 默认为 0
+            preview_slot: None,
+            mechanic_states: vec![],
+            mechanic_definitions: vec![],
+        };
+
+        let result = calculate_dps(&input).expect("calc ok");
+        assert_eq!(result.rate, 0.0);
+        assert_eq!(result.dps_theoretical, 0.0);
+    }
+
+    #[test]
+    fn spell_burst_trigger_flag_uses_m_over_t_full() {
+        // use_spell_burst = true 且 M=3, t_full=2s → rate = 1.5/s
+        let input = CalculatorInput {
+            context_flags: HashMap::from([("use_spell_burst".to_string(), true)]),
+            context_values: HashMap::new(),
+            target_config: TargetConfig::default(),
+            items: vec![],
+            active_skill: SkillData {
+                base_time: 1.0, // 基础 rate = 1/s (仅用于 trace)
+                base_damage: HashMap::from([
+                    ("dmg.cold.min".to_string(), 10.0),
+                    ("dmg.cold.max".to_string(), 20.0),
+                ]),
+                tags: vec!["Tag_Spell".to_string()],
+                ..make_spell()
+            },
+            support_skills: vec![],
+            global_overrides: HashMap::from([
+                ("mechanic.spell_burst.max_stacks".to_string(), 3.0), // M = 3
+                ("speed.spell_burst_charge".to_string(), 0.0),        // t_full = 2 / 1 = 2s
+            ]),
+            preview_slot: None,
+            mechanic_states: vec![],
+            mechanic_definitions: vec![],
+        };
+
+        let result = calculate_dps(&input).expect("calc ok");
+        // 期望 rate = 3 / 2 = 1.5
+        assert!((result.rate - 1.5).abs() < 1e-6);
+        // 基础均值 15，rate=1.5 → dps≈22.5（无暴击/增伤）
+        assert!(result.dps_theoretical > 20.0 && result.dps_theoretical < 25.0);
+    }
 }
 
 /// 8. 计算暴击
